@@ -11,6 +11,10 @@ build*/
 # Logs folders
 logs/
 
+# 
+utils/p4include
+utils/cheat_sheet_src
+
 # Created by https://www.toptal.com/developers/gitignore/api/python,c++
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,c++
 
