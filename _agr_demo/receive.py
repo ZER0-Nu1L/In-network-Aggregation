@@ -25,7 +25,7 @@ def get_if():
 def handle_pkt(pkt):
     # if ATP in pkt or (TCP in pkt and pkt[TCP].dport == 1234):
     print("got a packet")
-    pkt.show2()
+    pkt.show()
 #        hexdump(pkt)
 #        print "len(pkt) = ", len(pkt)
     sys.stdout.flush()
