@@ -5,43 +5,57 @@ import socket
 import random
 import struct
 import argparse
+import time
 
 from scapy.all import sendp, send, get_if_list, get_if_hwaddr, hexdump
 from scapy.all import Packet
 from scapy.all import Ether, IP, UDP, TCP
 from atp_header import ATP, ATPData
 from utils import *
+from config import *
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('ip_addr', type=str, help="The destination IP address to use")
-    parser.add_argument('--degree', type=int)
-    parser.add_argument('--value', type=int)
-    args = parser.parse_args()
 
-    addr = socket.gethostbyname(args.ip_addr)
-    value = args.value
-    degree = args.degree
+class DataManager:
+    def __init__(self, dst_ip, data):
+        self.dst_ip = socket.gethostbyname(dst_ip)
+        self.dst_ip = dst_ip
+        self.data = float_to_int(data)
     
-    iface = get_if()
-    
-    print(args)
-    print(("sending on interface {} with value: {} degree: {}".format(iface, str(value), str(degree))))
-    pkt =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff') # TODO: 
-    pkt = pkt / IP(dst=addr, proto=0x12) / ATP(aggregationDegree=degree)
-    pkt = pkt / ATPData(
-        d00 = 1, d01 = 1, d02 = 1, d03 = 1, d04 = 1, d05 = 1, d06 = 1, d07 = 1, d08 = 1, d09 =1,
-        d10 = 1, d11 = 1, d12 = 1, d13 = 1, d14 = 1, d15 = 1, d16 = 1, d17 = 1, d18 = 1, d19 =1,
-        d20 = 1, d21 = 1, d22 = 1, d23 = 1, d24 = 1, d25 = 1, d26 = 1, d27 = 1, d28 = 1, d29 =1,
-        d30 = 1,
-    )
+    def _partition_data(self, worker_id, switch_id, degree): # TODO: worker_id, switch_id 尚未支持
+        '''
+        把data以一个payload的大小为单位进行划分
+        '''
+        packet_list = []
+        for index in range(0, len(self.data), DATANUM):
+            iface = get_if()
+            left = index
+            right = index+DATANUM if (index+DATANUM <= len(self.data)) else len(self.data)
 
-    pkt.show()      # .show2() 不能展示新协议？
-    hexdump(pkt)    # 以经典的hexdump格式(十六进制)输出数据包.
-    print("len(pkt) = ", len(pkt))
-    
-    sendp(pkt, iface=iface, verbose=False)
-
+            args = ["d00", "d01", "d02", "d03", "d04", "d05", "d06", "d07", "d08", "d09", "d10", "d11", "d12", "d13", "d14", "d15", "d16", "d17", "d18", "d19", "d20", "d21", "d22", "d23", "d24", "d25", "d26", "d27", "d28", "d29", "d30"]
+            packet_list.append(
+                Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff') /
+                IP(dst=self.dst_ip, proto=0x12) /
+                ATP(aggregationDegree = degree) /
+                ATPData(**dict(zip(args, self.data[left:right])))
+                )
+        return packet_list
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('host', type=str, help="The destination host to use")
+    parser.add_argument('--degree', type=int)
+    args = parser.parse_args()
+
+    host = args.host
+    degree = args.degree
+    
+    test_data = [float(i) for i in range(0, 1000)]
+    manager = DataManager(host, test_data)
+    packet_list = manager._partition_data(1, 2, degree)
+    
+    iface = get_if()
+    for pkt in packet_list:
+        pkt.show()      # .show2() 不能展示新协议？
+        hexdump(pkt)    # 以经典的hexdump格式(十六进制)输出数据包.
+        sendp(pkt, iface=iface, verbose=False)
+        time.sleep(10)

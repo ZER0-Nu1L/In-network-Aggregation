@@ -12,8 +12,9 @@ CLI:
 make run
 ...
 mininet> h3 python3 ./host/receive.py > ./logs/receiver.log &
-mininet> h1 python3 ./host/send.py h3 --value 12 --degree 2
-mininet> h2 python3 ./host/send.py h3 --value 3 --degree 2
+(new terminal) tail -f /logs/receiver.log
+mininet> h1 python3 ./host/send.py h3 --degree 2 &
+mininet> h2 python3 ./host/send.py h3 --degree 2 &
 mininet> exit
 ...
 make stop & make clean
@@ -30,9 +31,10 @@ CLI:
 make run
 ...
 mininet> h4 python3 ./host/receive.py > ./logs/receiver.log &
-mininet> h1 python3 ./host/send.py h4 --value 12 --degree 3
-mininet> h2 python3 ./host/send.py h4 --value 3 --degree 3
-mininet> h3 python3 ./host/send.py h4 --value 1 --degree 3
+(new terminal) tail -f /logs/receiver.log
+mininet> h1 python3 ./host/send.py h4 --degree 3 &
+mininet> h2 python3 ./host/send.py h4 --degree 3 &
+mininet> h3 python3 ./host/send.py h4 --degree 3 &
 mininet> exit
 ...
 make stop & make clean
