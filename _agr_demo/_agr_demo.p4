@@ -100,6 +100,7 @@ control MyIngress(inout headers hdr,
     register<data_t>(JOB_NUM) aggrvalue_vector28;
     register<data_t>(JOB_NUM) aggrvalue_vector29;
     register<data_t>(JOB_NUM) aggrvalue_vector30;
+    register<data_t>(JOB_NUM) aggrvalue_vector31;
 
     // TODO: 可以不可以直接 acition，不用 table 的？
     // NOTE: 在 SwitchML 里面都是这样的逻辑，但是至少在P4_16中可以像函数一样直接调用 action.
@@ -291,6 +292,12 @@ control MyIngress(inout headers hdr,
         aggrvalue_vector30.write((bit<32>)meta.aggIndex, meta.aggre_value30);
     }
 
+    action vector31_add() {
+        aggrvalue_vector31.read(meta.aggre_value31, (bit<32>)meta.aggIndex);
+        meta.aggre_value31 = meta.aggre_value31 + hdr.atp_data.value31;
+        aggrvalue_vector31.write((bit<32>)meta.aggIndex, meta.aggre_value31);
+    }
+
     // vectorX_read
     action vector00_read() {
         aggrvalue_vector00.read(hdr.atp_data.value00, (bit<32>)meta.aggIndex);
@@ -414,6 +421,10 @@ control MyIngress(inout headers hdr,
 
     action vector30_read() {
         aggrvalue_vector30.read(hdr.atp_data.value30, (bit<32>)meta.aggIndex);
+    }
+
+    action vector31_read() {
+        aggrvalue_vector31.read(hdr.atp_data.value31, (bit<32>)meta.aggIndex);
     }
 
     // vectorX_clean
@@ -541,6 +552,10 @@ control MyIngress(inout headers hdr,
         aggrvalue_vector30.write((bit<32>)meta.aggIndex, 0);
     }
 
+    action vector31_clean() {
+        aggrvalue_vector31.write((bit<32>)meta.aggIndex, 0);
+    }
+
     
     // NOTE: apply
     apply {
@@ -551,7 +566,7 @@ control MyIngress(inout headers hdr,
             vector00_add(); vector01_add(); vector02_add(); vector03_add(); vector04_add(); vector05_add(); vector06_add(); vector07_add(); vector08_add(); vector09_add();
             vector10_add(); vector11_add(); vector12_add(); vector13_add(); vector14_add(); vector15_add(); vector16_add(); vector17_add(); vector18_add(); vector19_add();
             vector20_add(); vector21_add(); vector22_add(); vector23_add(); vector24_add(); vector25_add(); vector26_add(); vector27_add(); vector28_add(); vector29_add();
-            vector30_add();
+            vector30_add(); vector31_add();
 
             count_add();
 
@@ -561,12 +576,12 @@ control MyIngress(inout headers hdr,
                 vector00_read(); vector01_read(); vector02_read(); vector03_read(); vector04_read(); vector05_read(); vector06_read(); vector07_read(); vector08_read(); vector09_read();
                 vector10_read(); vector11_read(); vector12_read(); vector13_read(); vector14_read(); vector15_read(); vector16_read(); vector17_read(); vector18_read(); vector19_read();
                 vector20_read(); vector21_read(); vector22_read(); vector23_read(); vector24_read(); vector25_read(); vector26_read(); vector27_read(); vector28_read(); vector29_read();
-                vector30_read();
+                vector30_read(); vector31_read();
 
                 vector00_clean(); vector01_clean(); vector02_clean(); vector03_clean(); vector04_clean(); vector05_clean(); vector06_clean(); vector07_clean(); vector08_clean(); vector09_clean();
                 vector10_clean(); vector11_clean(); vector12_clean(); vector13_clean(); vector14_clean(); vector15_clean(); vector16_clean(); vector17_clean(); vector18_clean(); vector19_clean();
                 vector20_clean(); vector21_clean(); vector22_clean(); vector23_clean(); vector24_clean(); vector25_clean(); vector26_clean(); vector27_clean(); vector28_clean(); vector29_clean();
-                vector30_clean();
+                vector30_clean(); vector31_clean();
                 if (hdr.ipv4.isValid()) {
                     ipv4_lpm.apply();
                 }

@@ -52,7 +52,7 @@ class ATPData(Packet):
         IntField("d28", 0),
         IntField("d29", 0),
         IntField("d30", 0),
-        # IntField("d31", 0),
+        IntField("d31", 0),
     ]
 
 bind_layers(IP, ATP, proto=TYPE_ATP)

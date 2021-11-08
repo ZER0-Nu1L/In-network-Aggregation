@@ -69,7 +69,7 @@ header entry_t { // TODO: rename
     data_t value28;
     data_t value29;
     data_t value30;
-    // data_t value31;
+    data_t value31;
 }
 
 struct headers {
@@ -121,7 +121,7 @@ struct metadata { // FIXME: 每次都会清空对吧，这和直接当场定义�
     data_t aggre_value28;
     data_t aggre_value29;
     data_t aggre_value30;
-    // data_t aggre_value31;
+    data_t aggre_value31;
 }
 
 #endif /* HEADERS_P4 */

@@ -8,5 +8,5 @@ SWITCHIDBIT = 32
 SEQUENCEBIT = 32
 
 # Payload
-DATANUM = 31
+DATANUM = 32
 DATABYTE = 124 # 31 * 4 即 payload 中 DATANUM 个 4 字节整数
