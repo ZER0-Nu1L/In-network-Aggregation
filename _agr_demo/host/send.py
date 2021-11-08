@@ -26,7 +26,7 @@ class DataManager:
         把data以一个payload的大小为单位进行划分
         '''
         packet_list = []
-        for index in range(0, len(self.data), DATANUM):
+        for i, index in enumerate(range(0, len(self.data), DATANUM)):
             iface = get_if()
             left = index
             right = index+DATANUM if (index+DATANUM <= len(self.data)) else len(self.data)
@@ -35,7 +35,7 @@ class DataManager:
             packet_list.append(
                 Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff') /
                 IP(dst=self.dst_ip, proto=0x12) /
-                ATP(aggregationDegree = degree) /
+                ATP(aggregationDegree = degree, aggIndex = i) /
                 ATPData(**dict(zip(args, self.data[left:right])))
                 )
         return packet_list
@@ -58,4 +58,4 @@ if __name__ == '__main__':
         pkt.show()      # .show2() 不能展示新协议？
         hexdump(pkt)    # 以经典的hexdump格式(十六进制)输出数据包.
         sendp(pkt, iface=iface, verbose=False)
-        time.sleep(10)
+        # time.sleep(10)

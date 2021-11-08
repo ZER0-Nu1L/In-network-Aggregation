@@ -51,6 +51,7 @@ control MyIngress(inout headers hdr,
         default_action = drop();
     }
 
+
     // NOTE: counter
     register<bit<5>>(JOB_NUM) count_reg;       // 和 aggregationDegree 同类型
 
@@ -560,7 +561,7 @@ control MyIngress(inout headers hdr,
     // NOTE: apply
     apply {
         if(hdr.atp.isValid()) {             // support in-network
-            meta.aggIndex = 0;           // TODO: 硬编码，目前还不支持多任务。 应该是根据任务分配的
+            meta.aggIndex = hdr.atp.aggIndex;   // DEBUG: 
             count_read();
 
             vector00_add(); vector01_add(); vector02_add(); vector03_add(); vector04_add(); vector05_add(); vector06_add(); vector07_add(); vector08_add(); vector09_add();

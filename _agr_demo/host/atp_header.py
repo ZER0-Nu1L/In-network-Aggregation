@@ -12,10 +12,11 @@ class ATP(Packet):
         BitField("overflow", 0, OVERFLOWBIT),
         BitField("isAck", 0, ISACKBIT),
         BitField("ecn", 0, ECNBIT),
-        # BitField("switchId", 0, SWITCHIDBIT),
-        # BitField("sequenceId", 0, SEQUENCEBIT),
-        # ShortField("value", 0),
-        # BitFieldLenField("data", 0, DATABYTE * 8),
+        BitField("resend", 0, RESENDBIT),
+        BitField("aggIndex", 0, INDEXBIT),
+        BitField("timestamp", 0, TIMEBIT),
+        BitField("switchId", 0, SWITCHIDBIT),
+        BitField("sequenceId", 0, SEQUENCEBIT),
     ]
 
 class ATPData(Packet):
