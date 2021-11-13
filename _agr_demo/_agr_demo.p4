@@ -33,9 +33,9 @@ control MyIngress(inout headers hdr,
     // NOTE: IPv4
     action ipv4_forward(macAddr_t dstAddr, egressSpec_t port) {
         standard_metadata.egress_spec = port;
-        hdr.ethernet.srcAddr = hdr.ethernet.dstAddr; // NOTE: 也没用了
+        hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
         hdr.ethernet.dstAddr = dstAddr;
-        hdr.ipv4.ttl = hdr.ipv4.ttl - 1; // NOTE: 没用了
+        hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
     }
     
     table ipv4_lpm {
@@ -67,6 +67,27 @@ control MyIngress(inout headers hdr,
     
     action count_clean() {
         count_reg.write((bit<32>)meta.aggIndex, 0);
+    }
+
+    // NOTE: switchID check
+    action set_agg() {
+        meta.tobe_agg = 1;
+    }
+
+    action unset_agg() {
+        meta.tobe_agg = 0;
+    }
+    
+    table switch_check {
+        key = {
+            hdr.atp.switchId: exact;
+        }
+        actions = {
+            set_agg;
+            unset_agg;
+        }
+        size = 1024;
+        default_action = unset_agg;
     }
 
     // NOTE: aggregators
@@ -557,11 +578,12 @@ control MyIngress(inout headers hdr,
         aggrvalue_vector31.write((bit<32>)meta.aggIndex, 0);
     }
 
-    
+
     // NOTE: apply
     apply {
-        if(hdr.atp.isValid()) {             // support in-network
-            meta.aggIndex = hdr.atp.aggIndex;   // DEBUG: 
+        switch_check.apply();
+        if(meta.tobe_agg == 1 && hdr.atp.isValid()) {
+            meta.aggIndex = hdr.atp.aggIndex;
             count_read();
 
             vector00_add(); vector01_add(); vector02_add(); vector03_add(); vector04_add(); vector05_add(); vector06_add(); vector07_add(); vector08_add(); vector09_add();
@@ -592,6 +614,8 @@ control MyIngress(inout headers hdr,
         } else {                            // IPv4
             if (hdr.ipv4.isValid()) {
                 ipv4_lpm.apply();
+            } else {
+                drop();
             }
         }
     }

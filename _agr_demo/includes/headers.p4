@@ -89,7 +89,7 @@ struct headers {
  *************************************************************************/
 
 struct metadata { // FIXME: 每次都会清空对吧，这和直接当场定义有什么区别呢
-    // 当前处理的 aggIndex，目前还不支持
+    bit<1> tobe_agg;
     bit<5> aggIndex;  // int<8> -x-> bit<32>
     // count 的中间量
     bit<5> count_value; // 最多不超过 aggregationDegree 的大小，类型与之对应 bit<5>

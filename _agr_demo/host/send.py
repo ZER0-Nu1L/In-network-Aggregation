@@ -35,7 +35,7 @@ class DataManager:
             packet_list.append(
                 Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff') /
                 IP(dst=self.dst_ip, proto=0x12) /
-                ATP(aggregationDegree = degree, aggIndex = i) /
+                ATP(aggregationDegree = degree, aggIndex = i, switchId = switch_id) /  # NOTE: 这里的 aggIndex 暂时比较随意
                 ATPData(**dict(zip(args, self.data[left:right])))
                 )
         return packet_list
@@ -44,18 +44,20 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('host', type=str, help="The destination host to use")
     parser.add_argument('--degree', type=int)
+    parser.add_argument('--switchId', type=int)
     args = parser.parse_args()
 
     host = args.host
     degree = args.degree
+    switchID = args.switchId
     
     test_data = [float(i) for i in range(0, 1000)]
     manager = DataManager(host, test_data)
-    packet_list = manager._partition_data(1, 2, degree)
+    packet_list = manager._partition_data(1, switchID, degree)
     
     iface = get_if()
     for pkt in packet_list:
         pkt.show()      # .show2() 不能展示新协议？
-        hexdump(pkt)    # 以经典的hexdump格式(十六进制)输出数据包.
+        # hexdump(pkt)    # 以经典的hexdump格式(十六进制)输出数据包.
         sendp(pkt, iface=iface, verbose=False)
         # time.sleep(10)

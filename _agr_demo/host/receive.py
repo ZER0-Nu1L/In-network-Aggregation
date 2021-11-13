@@ -6,13 +6,13 @@ import os
 from scapy.all import sniff, sendp, hexdump, get_if_list, get_if_hwaddr
 from scapy.all import Packet, IPOption
 from scapy.all import ShortField, IntField, LongField, BitField, FieldListField, FieldLenField
-from scapy.all import IP, TCP, UDP, Raw
+from scapy.all import IP, TCP, UDP, Raw, ICMP
 from scapy.layers.inet import _IPOption_HDR
 from atp_header import ATP
 from utils import *
 
 def handle_pkt(pkt):
-    if (ATP in pkt) or (IP in pkt):
+    if ((ATP in pkt) or (IP in pkt)) : # (ICMP not in ATP) and 
         print("got a packet:")
         pkt.show()
         hexdump(pkt)
