@@ -26,6 +26,27 @@ control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
     
+        // NOTE: switchID check
+    action set_agg() {
+        meta.tobe_agg = 1;
+    }
+
+    action unset_agg() {
+        meta.tobe_agg = 0;
+    }
+    
+    table switch_check {
+        key = {
+            hdr.atp.switchId: exact;
+        }
+        actions = {
+            set_agg;
+            unset_agg;
+        }
+        size = 1024;
+        default_action = unset_agg();
+    }
+    
     action drop() {
         mark_to_drop(standard_metadata);
     }
@@ -51,6 +72,30 @@ control MyIngress(inout headers hdr,
         default_action = drop();
     }
 
+    // NOTE: aggregation_foward，实现上看起来和 ipv4_forward 一样，但其实如果和控制平面交互，会不一样
+    action aggregation_foward(macAddr_t dstAddr, egressSpec_t port) {
+        standard_metadata.egress_spec = port;
+        hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
+        hdr.ethernet.dstAddr = dstAddr;
+        hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
+        meta.tobe_agg = 1;
+        // set_agg.apply();        // DEBUG: action不可以调用action？
+    }
+
+    table aggregate_link_lpm {
+        key = {
+            hdr.ipv4.srcAddr: lpm;
+            hdr.ipv4.dstAddr: exact;
+            standard_metadata.ingress_port: exact;
+        }
+        actions = {
+            aggregation_foward;
+            NoAction;
+        }
+        size = 1024;
+        default_action = NoAction();
+    }
+
 
     // NOTE: counter
     register<bit<5>>(JOB_NUM) count_reg;       // 和 aggregationDegree 同类型
@@ -67,27 +112,6 @@ control MyIngress(inout headers hdr,
     
     action count_clean() {
         count_reg.write((bit<32>)meta.aggIndex, 0);
-    }
-
-    // NOTE: switchID check
-    action set_agg() {
-        meta.tobe_agg = 1;
-    }
-
-    action unset_agg() {
-        meta.tobe_agg = 0;
-    }
-    
-    table switch_check {
-        key = {
-            hdr.atp.switchId: exact;
-        }
-        actions = {
-            set_agg;
-            unset_agg;
-        }
-        size = 1024;
-        default_action = unset_agg;
     }
 
     // NOTE: aggregators
@@ -582,7 +606,7 @@ control MyIngress(inout headers hdr,
     // NOTE: apply
     apply {
         switch_check.apply();
-        if(meta.tobe_agg == 1 && hdr.atp.isValid()) {
+        if(meta.tobe_agg == 1 && hdr.atp.isValid()) {        // NOTE: 在此交换机上聚合的场景
             meta.aggIndex = hdr.atp.aggIndex;
             count_read();
 
@@ -605,17 +629,16 @@ control MyIngress(inout headers hdr,
                 vector10_clean(); vector11_clean(); vector12_clean(); vector13_clean(); vector14_clean(); vector15_clean(); vector16_clean(); vector17_clean(); vector18_clean(); vector19_clean();
                 vector20_clean(); vector21_clean(); vector22_clean(); vector23_clean(); vector24_clean(); vector25_clean(); vector26_clean(); vector27_clean(); vector28_clean(); vector29_clean();
                 vector30_clean(); vector31_clean();
-                if (hdr.ipv4.isValid()) {
-                    ipv4_lpm.apply();
-                }
+                ipv4_lpm.apply();
             } else {
                 drop();
             }
         } else {                            // IPv4
-            if (hdr.ipv4.isValid()) {
+            if (hdr.atp.isValid() && hdr.ipv4.isValid()) {   // NOTE: 将要/已经在其他交换机上聚合进行转发
+                aggregate_link_lpm.apply(); // TODO: 匹配将要转发的会 meta.tobe_agg = 1
+            }
+            if (hdr.ipv4.isValid() && meta.tobe_agg == 0) { // NOTE: 其他IP报文
                 ipv4_lpm.apply();
-            } else {
-                drop();
             }
         }
     }

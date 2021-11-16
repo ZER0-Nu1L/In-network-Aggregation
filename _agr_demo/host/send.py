@@ -45,13 +45,20 @@ if __name__ == '__main__':
     parser.add_argument('host', type=str, help="The destination host to use")
     parser.add_argument('--degree', type=int)
     parser.add_argument('--switchId', type=int)
+    # parser.add_argument('--srcHost', type=int)
     args = parser.parse_args()
 
     host = args.host
     degree = args.degree
     switchID = args.switchId
+    # srcHost = args.srcHost[-1] # TODO: 这个处理有点潦草
     
-    test_data = [float(i) for i in range(0, 1000)]
+    test_data = [float(i) for i in range(0, 1000)] # TODO:
+    ''' TODO: test
+    directory = "/home/p4/paras/" + "para_of_" + srcHost + "_epoch_0"
+    with open(directory, 'r') as file:
+        test_data = list(map(float, file.read().split("\n"))) 
+    '''
     manager = DataManager(host, test_data)
     packet_list = manager._partition_data(1, switchID, degree)
     

@@ -17,7 +17,7 @@ def get_if():
     return iface
 
 def float_to_int(num_list):
-    scale_factor = 1000000
+    scale_factor = 1000000  # FIXME: 10^8
     res = []
     for num in num_list:
         res.append(int(num * scale_factor))
