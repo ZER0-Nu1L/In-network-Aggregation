@@ -4,8 +4,6 @@
 #include "includes/headers.p4"
 #include "includes/parser.p4"
 
-// #include "includes/registers.p4" // TODO: 能不能移动过去？要定义在 Ingress 里面？
-
 #define JOB_NUM 512                // 支持的聚合 Job 数量
 
 
@@ -26,7 +24,7 @@ control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
     
-        // NOTE: switchID check
+    // NOTE: switchID check
     action set_agg() {
         meta.tobe_agg = 1;
     }
@@ -79,7 +77,6 @@ control MyIngress(inout headers hdr,
         hdr.ethernet.dstAddr = dstAddr;
         hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
         meta.tobe_agg = 1;
-        // set_agg.apply();        // DEBUG: action不可以调用action？
     }
 
     table aggregate_link_lpm {
@@ -148,7 +145,6 @@ control MyIngress(inout headers hdr,
     register<data_t>(JOB_NUM) aggrvalue_vector30;
     register<data_t>(JOB_NUM) aggrvalue_vector31;
 
-    // TODO: 可以不可以直接 acition，不用 table 的？
     // NOTE: 在 SwitchML 里面都是这样的逻辑，但是至少在P4_16中可以像函数一样直接调用 action.
 
     // vectorX_add

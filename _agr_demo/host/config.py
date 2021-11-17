@@ -13,3 +13,6 @@ SEQUENCEBIT = 32
 # Payload
 DATANUM = 32
 DATABYTE = 124 # 31 * 4 即 payload 中 DATANUM 个 4 字节整数
+
+# Data
+DATADIR = "/home/p4/paras/"

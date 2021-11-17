@@ -15,7 +15,7 @@ def handle_pkt(pkt):
     if ((ATP in pkt) or (IP in pkt)) : # (ICMP not in ATP) and 
         print("got a packet:")
         pkt.show()
-        hexdump(pkt)
+        # hexdump(pkt)
         print("len(pkt) = ", len(pkt))
         sys.stdout.flush()
 

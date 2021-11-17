@@ -21,7 +21,7 @@ class DataManager:
         self.dst_ip = dst_ip
         self.data = float_to_int(data)
     
-    def _partition_data(self, worker_id, switch_id, degree): # TODO: worker_id, switch_id 尚未支持
+    def _partition_data(self, worker_id, switch_id, degree): # TODO: worker_id 尚未支持
         '''
         把data以一个payload的大小为单位进行划分
         '''
@@ -45,26 +45,26 @@ if __name__ == '__main__':
     parser.add_argument('host', type=str, help="The destination host to use")
     parser.add_argument('--degree', type=int)
     parser.add_argument('--switchId', type=int)
-    # parser.add_argument('--srcHost', type=int)
+    parser.add_argument('--dataSeq', type=int)
     args = parser.parse_args()
 
     host = args.host
     degree = args.degree
     switchID = args.switchId
-    # srcHost = args.srcHost[-1] # TODO: 这个处理有点潦草
+    dataSeq = args.dataSeq # TODO: 后续根据新文件进行修改
     
-    test_data = [float(i) for i in range(0, 1000)] # TODO:
-    ''' TODO: test
-    directory = "/home/p4/paras/" + "para_of_" + srcHost + "_epoch_0"
+    # test_data = [float(i) for i in range(0, 1000)] # DEBUG:
+    
+    directory = DATADIR + "para_of_" + str(dataSeq) + "_epoch_0"
     with open(directory, 'r') as file:
-        test_data = list(map(float, file.read().split("\n"))) 
-    '''
-    manager = DataManager(host, test_data)
+        test_data = list(map(float, file.read().split("\n")[:-1])) # 最后有一个无效的 [:-1]
+    
+    manager = DataManager(host, test_data) # [:10000]
     packet_list = manager._partition_data(1, switchID, degree)
     
     iface = get_if()
     for pkt in packet_list:
         pkt.show()      # .show2() 不能展示新协议？
-        # hexdump(pkt)    # 以经典的hexdump格式(十六进制)输出数据包.
+        hexdump(pkt)    # 以经典的hexdump格式(十六进制)输出数据包.
         sendp(pkt, iface=iface, verbose=False)
         # time.sleep(10)
