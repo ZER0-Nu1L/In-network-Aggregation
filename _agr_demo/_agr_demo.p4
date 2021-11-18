@@ -149,14 +149,14 @@ control MyIngress(inout headers hdr,
         count_reg.write((bit<32>)0, 0);
     }
 
+    action vector_read() {
+        agrValueVector.read(hdr.atp.value, (bit<32>)0); 
+    }
+
     action vector_add() { 
         agrValueVector.read(meta.aggre_value, (bit<32>)0); 
         meta.aggre_value = meta.aggre_value + hdr.atp.value;
         agrValueVector.write((bit<32>)0, meta.aggre_value);
-    }
-
-    action vector_read() {
-        agrValueVector.read(hdr.atp.value, (bit<32>)0); 
     }
 
     action vector_clean() {
@@ -170,11 +170,11 @@ control MyIngress(inout headers hdr,
 
             count_read();
             if(meta.count_value == hdr.atp.aggregationDegree) {
-                vector_read();
-                ipv4_lpm.apply();
-
-                vector_clean();
                 count_clean();
+                vector_read();
+                vector_clean();
+                
+                ipv4_lpm.apply();
             } else {
                 drop();
             }
@@ -240,7 +240,7 @@ V1Switch(
 MyParser(),
 MyVerifyChecksum(),
 MyIngress(),
-MyIngress(),
+MyEgress(),
 MyComputeChecksum(),
 MyDeparser()
 ) main;
