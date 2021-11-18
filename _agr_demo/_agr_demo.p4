@@ -133,17 +133,7 @@ control MyIngress(inout headers hdr,
     }
 
     register<bit<8>>(1) count_reg;
-    register<bit<16>>(1) agrValueVector; // NOTE: 暂时不考虑溢出问题。
-
-   /*
-    register<data_t>(num) reg_name;
-
-    reg_name.read(temp, index);
-    temp....
-    reg_name.write(index, dst);
-
-    // <=> reg[index]xxx
-    */
+    register<bit<16>>(1) agrValueVector;
 
     action count_read() {
         count_reg.read(meta.count_value, (bit<32>)0);
@@ -182,7 +172,7 @@ control MyIngress(inout headers hdr,
             if(meta.count_value == hdr.atp.aggregationDegree) {
                 vector_read();
                 ipv4_lpm.apply();
-                
+
                 vector_clean();
                 count_clean();
             } else {
