@@ -143,11 +143,11 @@ control MyIngress(inout headers hdr,
     reg_name.write(index, dst);
 
     // <=> reg[index]xxx
+    */
 
     action count_read() {
         count_reg.read(meta.count_value, (bit<32>)0);
     }
-    */
 
     action count_add() { 
         count_reg.read(meta.count_value, (bit<32>)0);
@@ -169,6 +169,10 @@ control MyIngress(inout headers hdr,
         agrValueVector.read(hdr.atp.value, (bit<32>)0); 
     }
 
+    action vector_clean() {
+        agrValueVector.write((bit<32>)0, 0);
+    }
+
     apply {
         if(hdr.atp.isValid()) {             // in-network-aggregation
             count_add();
@@ -176,9 +180,11 @@ control MyIngress(inout headers hdr,
 
             count_read();
             if(meta.count_value == hdr.atp.aggregationDegree) {
-                count_clean();
                 vector_read();
                 ipv4_lpm.apply();
+                
+                vector_clean();
+                count_clean();
             } else {
                 drop();
             }
@@ -244,7 +250,7 @@ V1Switch(
 MyParser(),
 MyVerifyChecksum(),
 MyIngress(),
-MyEgress(),
+MyIngress(),
 MyComputeChecksum(),
 MyDeparser()
 ) main;
