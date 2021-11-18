@@ -1,13 +1,61 @@
 /* -*- P4_16 -*- */
 #include <core.p4>
 #include <v1model.p4>
-#include "includes/headers.p4"
-// #include "includes/registers.p4" // TODO: 能不能移动过去？要定义在 Ingress 里面？
-
-#define JOB_NUM 512                // 支持的聚合 Job 数量
 
 const bit<16> TYPE_IPV4 = 0x800;
 const bit<8>  TYPE_ATP = 0x12;
+/*************************************************************************
+ ***********************  H E A D E R S  *********************************
+ *************************************************************************/
+
+typedef bit<9>  egressSpec_t;
+typedef bit<48> macAddr_t;
+typedef bit<32> ip4Addr_t;
+
+header ethernet_t {
+    macAddr_t dstAddr;
+    macAddr_t srcAddr;
+    bit<16>   etherType;
+}
+
+header ipv4_t {
+    bit<4>    version;
+    bit<4>    ihl;
+    bit<8>    diffserv;
+    bit<16>   totalLen;
+    bit<16>   identification;
+    bit<3>    flags;
+    bit<13>   fragOffset;
+    bit<8>    ttl;
+    bit<8>    protocol;
+    bit<16>   hdrChecksum;
+    ip4Addr_t srcAddr;
+    ip4Addr_t dstAddr;
+}
+
+header atp_t {
+    bit<8>  aggregationDegree;
+    bit<16> value;
+}
+
+struct headers {
+    ethernet_t   ethernet;
+    ipv4_t       ipv4;
+    atp_t        atp;
+}
+
+
+/*************************************************************************
+ ***********************  M E T A D A T A  *******************************
+ *************************************************************************/
+
+struct metadata {
+    // count 的中间量
+    bit<8> count_value;
+    // value 的中间量
+    bit<16> aggre_value; // bit<16>
+}
+
 /*************************************************************************
 *********************** P A R S E R  ***********************************
 *************************************************************************/
@@ -66,9 +114,9 @@ control MyIngress(inout headers hdr,
     
     action ipv4_forward(macAddr_t dstAddr, egressSpec_t port) {
         standard_metadata.egress_spec = port;
-        hdr.ethernet.srcAddr = hdr.ethernet.dstAddr; // NOTE: 也没用了
+        hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
         hdr.ethernet.dstAddr = dstAddr;
-        hdr.ipv4.ttl = hdr.ipv4.ttl - 1; // NOTE: 没用了
+        hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
     }
     
     table ipv4_lpm {
@@ -84,92 +132,55 @@ control MyIngress(inout headers hdr,
         default_action = drop();
     }
 
-    table drop_table { // NOTE: …… 没办法……
-        actions = {
-            drop;
-        }
-        default_action = drop();
+    register<bit<8>>(1) count_reg;
+    register<bit<16>>(1) agrValueVector; // NOTE: 暂时不考虑溢出问题。
+
+   /*
+    register<data_t>(num) reg_name;
+
+    reg_name.read(temp, index);
+    temp....
+    reg_name.write(index, dst);
+
+    // <=> reg[index]xxx
+
+    action count_read() {
+        count_reg.read(meta.count_value, (bit<32>)0);
     }
+    */
 
-    register<bit<5>>(JOB_NUM) count_reg;       // 和 aggregationDegree 同类型
-    register<bit<16>>(JOB_NUM) agrValueVector; // NOTE: 暂时不考虑溢出问题。 TODO: int 没有试过，到时候发包解析试试，但是寄存器会遇到问题
-    // TODO: 寄存器的命名最好再统一一点。
-
-    action count_read_act() {
-        count_reg.read(meta.count_value, (bit<32>)meta.aggIndex);
-    }
-
-    table count_read { 
-        actions = { 
-            count_read_act; 
-        }
-        default_action = count_read_act();
-    }
-
-    action count_add_act() { 
-        count_reg.read(meta.count_value, (bit<32>)meta.aggIndex);
+    action count_add() { 
+        count_reg.read(meta.count_value, (bit<32>)0);
         meta.count_value = meta.count_value + 1;
-        count_reg.write((bit<32>)meta.aggIndex, meta.count_value);
-    }
-
-    table count_add { 
-        actions = { 
-            count_add_act; 
-        }
-        default_action = count_add_act();
+        count_reg.write((bit<32>)0, meta.count_value);
     }
     
-    action count_clean_act() {
-        count_reg.write((bit<32>)meta.aggIndex, 0);
+    action count_clean() {
+        count_reg.write((bit<32>)0, 0);
     }
 
-    table count_clean {
-        actions = {
-            count_clean_act;
-        }
-        default_action = count_clean_act();
-    }
-
-    action vector_add_act() { 
-        agrValueVector.read(meta.aggre_value, (bit<32>)meta.aggIndex); 
+    action vector_add() { 
+        agrValueVector.read(meta.aggre_value, (bit<32>)0); 
         meta.aggre_value = meta.aggre_value + hdr.atp.value;
-        agrValueVector.write((bit<32>)meta.aggIndex, meta.aggre_value);
+        agrValueVector.write((bit<32>)0, meta.aggre_value);
     }
 
-    table vector_add {      // TODO: 可以不可以直接 acition，不用 table 的？
-        actions = { 
-            vector_add_act;
-        }
-        default_action = vector_add_act();
-    }
-
-    action vector_read_act() {
-        agrValueVector.read(hdr.atp.value, (bit<32>)meta.aggIndex); 
-    }
-
-    table vector_read {
-        actions = { 
-            vector_read_act;
-        }
-        default_action = vector_read_act();
+    action vector_read() {
+        agrValueVector.read(hdr.atp.value, (bit<32>)0); 
     }
 
     apply {
-        if(hdr.atp.isValid()) {             // support in-network
-            meta.aggIndex = 0;           // TODO: 硬编码，目前还不支持多任务。 应该是根据任务分配的
-            count_read.apply();
+        if(hdr.atp.isValid()) {             // in-network-aggregation
+            count_add();
+            vector_add();
 
-            vector_add.apply();
-            // 根据计数判断
-            count_add.apply();
-            if((bit<5>)meta.count_value == hdr.atp.aggregationDegree) {
-                count_clean.apply();
-                vector_read.apply();
-                if (hdr.ipv4.isValid()) {
-                    ipv4_lpm.apply();
-                }
+            count_read();
+            if(meta.count_value == hdr.atp.aggregationDegree) {
+                count_clean();
+                vector_read();
+                ipv4_lpm.apply();
             } else {
-                drop_table.apply(); // FIXME: 写得不是很好。
+                drop();
             }
         } else {                            // IPv4
             if (hdr.ipv4.isValid()) {
@@ -198,7 +209,7 @@ control MyComputeChecksum(inout headers  hdr, inout metadata meta) {
 	update_checksum(
 	    hdr.ipv4.isValid(),
             { hdr.ipv4.version,
-	      hdr.ipv4.ihl,
+	          hdr.ipv4.ihl,
               hdr.ipv4.diffserv,
               hdr.ipv4.totalLen,
               hdr.ipv4.identification,

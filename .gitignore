@@ -11,6 +11,10 @@ build*/
 # Logs folders
 logs/
 
+# display folders
+basic/
+basic_tunnel/
+
 # 
 utils/p4include
 utils/cheat_sheet_src

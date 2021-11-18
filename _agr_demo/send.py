@@ -38,13 +38,11 @@ def main():
     print(args)
     print(("sending on interface {} to value {}".format(iface, str(value))))
     pkt =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff')
-    pkt = pkt / IP(dst=addr, proto=0x12) / ATP(value=value, aggregationDegree=degree) # NOTE: 
+    pkt = pkt / IP(dst=addr, proto=0x12) / ATP(value=value, aggregationDegree=degree)
 
-    pkt.show() # NOTE: .show2() 不能展示新协议？
-#    hexdump(pkt)
-#    print "len(pkt) = ", len(pkt)
+    pkt.show()
+    hexdump(pkt)
     sendp(pkt, iface=iface, verbose=False)
-
 
 if __name__ == '__main__':
     main()
