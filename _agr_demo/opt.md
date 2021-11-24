@@ -107,8 +107,8 @@ mininet> h18 python3 ./host/send.py h25 --degree 6 --switchId 2
 mininet> h23 python3 ./host/send.py h25 --degree 6 --switchId 2
 # hX -> s3 -> PS
 mininet> h2  python3 ./host/send.py h25 --degree 6 --switchId 3
-mininet> h14 python3 ./host/send.py h25 --degree 6 --switchId 3
 mininet> h11 python3 ./host/send.py h25 --degree 6 --switchId 3
+mininet> h14 python3 ./host/send.py h25 --degree 6 --switchId 3
 mininet> h17 python3 ./host/send.py h25 --degree 6 --switchId 3
 mininet> h20 python3 ./host/send.py h25 --degree 6 --switchId 3
 mininet> h22 python3 ./host/send.py h25 --degree 6 --switchId 3
