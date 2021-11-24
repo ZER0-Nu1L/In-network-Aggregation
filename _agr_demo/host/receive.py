@@ -12,11 +12,11 @@ from atp_header import ATP
 from utils import *
 
 def handle_pkt(pkt):
-    if ((ATP in pkt) or (IP in pkt)) : # (ICMP not in ATP) and 
+    if (ICMP not in pkt) and ((ATP in pkt) or (IP in pkt)) :
         print("got a packet:")
         pkt.show()
         # hexdump(pkt)
-        print("len(pkt) = ", len(pkt))
+        # print("len(pkt) = ", len(pkt))
         sys.stdout.flush()
 
 def main():
@@ -24,8 +24,8 @@ def main():
     iface = ifaces[0]
     print(("sniffing on %s" % iface))
     sys.stdout.flush()
-    sniff(iface = iface,
-          prn = lambda x: handle_pkt(x))
+    packets = sniff(iface = iface, prn = lambda x: handle_pkt(x)) # , timeout = 120
+    print("rec %d packets" % len(packets))
 
 if __name__ == '__main__':
     main()

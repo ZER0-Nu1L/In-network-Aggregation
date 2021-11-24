@@ -21,13 +21,17 @@
 #
 import os, sys, json, subprocess, re, argparse
 from time import sleep
+from time import time
+from signal import SIGINT
 
 from p4_mininet import P4Switch, P4Host
 
 from mininet.net import Mininet
-from mininet.topo import Topo
+from mininet.topo import SingleSwitchReversedTopo, Topo
 from mininet.link import TCLink
 from mininet.cli import CLI
+from mininet.log import setLogLevel, info
+from mininet.util import pmonitor
 
 from p4runtime_switch import P4RuntimeSwitch
 import p4runtime_lib.simple_controller
@@ -313,7 +317,7 @@ class ExerciseRunner:
                     h.cmd(cmd)
 
 
-    def do_net_cli(self):
+    def  do_net_cli(self):
         """ Starts up the mininet CLI and prints some helpful output.
 
             Assumes:
@@ -352,6 +356,63 @@ class ExerciseRunner:
             print(' for example run:  cat %s/s1-p4runtime-requests.txt' % self.log_dir)
             print('')
 
+        # Test aggregation
+        print('')
+        print('======================================================================')
+        print('Start test In-network aggregation')
+        print('======================================================================')
+        print('')
+
+        setLogLevel( 'info' )
+        
+        PS = self.net.hosts[24]
+        PS.cmd("python3 ./host/receive.py > ./logs/receiver.log &")
+
+        # h1, h5, h8, h13, h16, h19, h24
+        hostGroup1 = [self.net.hosts[0], self.net.hosts[4], self.net.hosts[7], self.net.hosts[12], self.net.hosts[15], self.net.hosts[18], self.net.hosts[23]]
+        # h4, h7, h12, h15, h18, h23        
+        hostGroup2 = [self.net.hosts[3], self.net.hosts[6], self.net.hosts[11], self.net.hosts[14], self.net.hosts[17], self.net.hosts[22]]
+        # h2, h11, h14, h17, h20, h22
+        hostGroup3 = [self.net.hosts[1], self.net.hosts[10], self.net.hosts[13], self.net.hosts[16], self.net.hosts[19], self.net.hosts[21]]
+        # h3, h6, h9
+        hostGroup4 = [self.net.hosts[2], self.net.hosts[5], self.net.hosts[8]]
+        # h10, h21
+        hostGroup5 = [self.net.hosts[9], self.net.hosts[20]]
+
+        popens = {}
+        for host in self.net.hosts:
+            if host in hostGroup1:
+                popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 7 --switchId 1 --dataSeq '+ host.name[1:])
+            elif host in hostGroup2:
+                popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 2 --dataSeq '+ host.name[1:])
+            elif host in hostGroup3:
+                popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 3 --dataSeq '+ host.name[1:])
+            elif host in hostGroup4:
+                popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 3 --switchId 4 --dataSeq '+ host.name[1:])
+            elif host in hostGroup5:
+                popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 2 --switchId 0 --dataSeq '+ host.name[1:])
+
+        endTime = time() + 500 # seconds
+        with open('logs/aggregation.log', 'w') as file:
+            for host, line in pmonitor( popens, timeoutms=500 ):
+                if host in hostGroup1:
+                    aggreNum = 1
+                elif host in hostGroup2:
+                    aggreNum = 2
+                elif host in hostGroup3:
+                    aggreNum = 3
+                elif host in hostGroup4:
+                    aggreNum = 4
+                elif host in hostGroup5:
+                    aggreNum = 5
+                
+                if host:
+                    file.write( '[aggre-%s]<%s>: %s' % ( str(aggreNum), host.name, line ) )
+                if time() >= endTime:
+                    for p in popens.values():
+                        p.send_signal( SIGINT )
+        
+        # sleep(120)  # sleep as long as receive.py
         CLI(self.net)
 
 

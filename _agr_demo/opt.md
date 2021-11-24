@@ -119,7 +119,7 @@ mininet> h9  python3 ./host/send.py h25 --degree 3 --switchId 4
 # hX -> PS
 mininet> h10  python3 ./host/send.py h25 --degree 2 --switchId 0
 mininet> h21  python3 ./host/send.py h25 --degree 2 --switchId 0
-
+m
 mininet> exit
 ...
 make stop & make clean

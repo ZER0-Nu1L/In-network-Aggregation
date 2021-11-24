@@ -53,18 +53,18 @@ if __name__ == '__main__':
     switchID = args.switchId
     dataSeq = args.dataSeq # TODO: 后续根据新文件进行修改
     
-    # test_data = [float(i) for i in range(0, 1000)] # DEBUG:
+    # test_data = [float(i)*0.0001 for i in range(0, 1000)] # DEBUG:
     
     directory = DATADIR + "para_of_" + str(dataSeq) + "_epoch_0"
     with open(directory, 'r') as file:
         test_data = list(map(float, file.read().split("\n")[:-1])) # 最后有一个无效的 [:-1]
     
-    manager = DataManager(host, test_data) # [:10000]
+    manager = DataManager(host, test_data[:100000]) # [:10000]
     packet_list = manager._partition_data(1, switchID, degree)
     
     iface = get_if()
     for pkt in packet_list:
         pkt.show()      # .show2() 不能展示新协议？
-        hexdump(pkt)    # 以经典的hexdump格式(十六进制)输出数据包.
+        # hexdump(pkt)    # 以经典的hexdump格式(十六进制)输出数据包.
         sendp(pkt, iface=iface, verbose=False)
         # time.sleep(10)
