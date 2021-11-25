@@ -23,14 +23,23 @@ control MyVerifyChecksum(inout headers hdr, inout metadata meta) {
 control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
-    
+
+    counter(1<<31, CounterType.packets_and_bytes) ingressCounter; // 1 << 16
+    counter(1<<31, CounterType.packets_and_bytes) egressCounter;
+
+
     // NOTE: switchID check
     action set_agg() {
         meta.tobe_agg = 1;
+        ingressCounter.count((bit<32>) hdr.atp.sequenceId); // TODO: 没有完全懂
     }
 
     action unset_agg() {
         meta.tobe_agg = 0;
+    }
+
+    action count_aggr_egress() {
+        egressCounter.count((bit<32>) hdr.atp.workerMap); // TODO: 没有完全懂
     }
     
     table switch_check {
@@ -92,7 +101,6 @@ control MyIngress(inout headers hdr,
         size = 1024;
         default_action = NoAction();
     }
-
 
     // NOTE: counter
     register<bit<5>>(JOB_NUM) count_reg;       // 和 aggregationDegree 同类型
@@ -625,6 +633,8 @@ control MyIngress(inout headers hdr,
                 vector10_clean(); vector11_clean(); vector12_clean(); vector13_clean(); vector14_clean(); vector15_clean(); vector16_clean(); vector17_clean(); vector18_clean(); vector19_clean();
                 vector20_clean(); vector21_clean(); vector22_clean(); vector23_clean(); vector24_clean(); vector25_clean(); vector26_clean(); vector27_clean(); vector28_clean(); vector29_clean();
                 vector30_clean(); vector31_clean();
+
+                count_aggr_egress();
                 ipv4_lpm.apply();
             } else {
                 drop();

@@ -18,6 +18,7 @@ import argparse
 import json
 import os
 import sys
+import time
 
 from . import bmv2
 from . import helper
@@ -88,6 +89,27 @@ def check_switch_conf(sw_conf, workdir):
             raise ConfException("file does not exist %s" % real_path)
 
 
+def printCounter(p4info_helper, sw, counter_name, index):
+    """
+    Reads the specified counter at the specified index from the switch. In our
+    program, the index is the tunnel ID. If the index is 0, it will return all
+    values from the counter.
+
+    :param p4info_helper: the P4Info helper
+    :param sw:  the switch connection
+    :param counter_name: the name of the counter from the P4 program
+    :param index: the counter index (in our case, the tunnel ID)
+    """
+    str = ""
+    for response in sw.ReadCounters(p4info_helper.get_counters_id(counter_name), index): # FIXME: 
+        for entity in response.entities:
+            counter = entity.counter_entry
+            str += "%s %s %d: %d packets\n" % (
+                sw.name, counter_name, index,
+                counter.data.packet_count
+            )
+    return str
+
 def program_switch(addr, device_id, sw_conf_file, workdir, proto_dump_fpath):
     sw_conf = json_load_byteified(sw_conf_file)
     try:
@@ -105,7 +127,7 @@ def program_switch(addr, device_id, sw_conf_file, workdir, proto_dump_fpath):
     info("Connecting to P4Runtime server on %s (%s)..." % (addr, target))
 
     if target == "bmv2":
-        sw = bmv2.Bmv2SwitchConnection(address=addr, device_id=device_id,
+        sw = bmv2.Bmv2SwitchConnection(name= 's'+str(device_id+1), address=addr, device_id=device_id,
                                        proto_dump_file=proto_dump_fpath)
     else:
         raise Exception("Don't know how to connect to target %s" % target)
@@ -141,6 +163,19 @@ def program_switch(addr, device_id, sw_conf_file, workdir, proto_dump_fpath):
             for entry in clone_entries:
                 info(cloneEntryToString(entry))
                 insertCloneGroupEntry(sw, entry, p4info_helper)
+
+        # NOTE: readTable work well!
+        # readTableRules(p4info_helper, sw)
+
+        # NOTE: printCounter work well HERE!
+        logDir = os.path.join(workdir, 'logs/s'+str(device_id+1)+'-inout.log')
+        endTime = time.time() + 320
+        while time.time() <= endTime:
+            with open(logDir, 'a') as file:
+                file.write('\n----- Reading tunnel counters -----\n')
+                file.write(printCounter(p4info_helper, sw, "MyIngress.ingressCounter", 0))  # TODO: 不知道这个 index 是干嘛的
+                file.write(printCounter(p4info_helper, sw, "MyIngress.egressCounter", 1))
+            time.sleep(2)  # DEBUG:
 
     finally:
         sw.shutdown()

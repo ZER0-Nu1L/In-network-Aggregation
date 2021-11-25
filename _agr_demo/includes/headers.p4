@@ -37,7 +37,7 @@ header atp_t {      // TODO: 硬编码
     bit<1> resend;              // TODO: 
     bit<5> aggIndex;
     bit<5> timestamp;           // TODO: 
-    bit<5> switchId;            // TODO: 
+    bit<5> switchId;
     bit<32> sequenceId;         // TODO: 
 }
 
