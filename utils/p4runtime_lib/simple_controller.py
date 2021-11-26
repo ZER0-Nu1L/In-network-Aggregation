@@ -101,7 +101,7 @@ def printCounter(p4info_helper, sw, counter_name, index):
     :param index: the counter index (in our case, the tunnel ID)
     """
     str = ""
-    for response in sw.ReadCounters(p4info_helper.get_counters_id(counter_name), index): # FIXME: 
+    for response in sw.ReadCounters(p4info_helper.get_counters_id(counter_name), index):
         for entity in response.entities:
             counter = entity.counter_entry
             str += "%s %s %d: %d packets\n" % (
@@ -168,7 +168,7 @@ def program_switch(addr, device_id, sw_conf_file, workdir, proto_dump_fpath):
         # readTableRules(p4info_helper, sw)
 
         # NOTE: printCounter work well HERE!
-        logDir = os.path.join(workdir, 'logs/s'+str(device_id+1)+'-inout.log')
+        logDir = os.path.join(workdir, 'logs/' + sw.name + '-inout.log')
         endTime = time.time() + 320
         while time.time() <= endTime:
             with open(logDir, 'a') as file:

@@ -24,8 +24,8 @@ control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
 
-    counter(1<<31, CounterType.packets_and_bytes) ingressCounter; // 1 << 16
-    counter(1<<31, CounterType.packets_and_bytes) egressCounter;
+    counter(1<<16, CounterType.packets) ingressCounter; // 1 << 16
+    counter(1<<16, CounterType.packets) egressCounter;
 
 
     // NOTE: switchID check
@@ -39,7 +39,7 @@ control MyIngress(inout headers hdr,
     }
 
     action count_aggr_egress() {
-        egressCounter.count((bit<32>) hdr.atp.workerMap); // TODO: 没有完全懂
+        egressCounter.count((bit<32>) hdr.atp.sequenceId); // TODO: 没有完全懂 workerMap, sequenceId 0
     }
     
     table switch_check {

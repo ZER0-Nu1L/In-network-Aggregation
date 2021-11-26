@@ -23,7 +23,6 @@ import os, sys, json, subprocess, re, argparse
 from time import sleep
 from time import time
 from signal import SIGINT
-from multiprocessing import Pool
 
 from p4_mininet import P4Switch, P4Host
 
@@ -190,6 +189,8 @@ class ExerciseRunner:
 
 
     def run_exercise(self):
+        setLogLevel( 'info' )
+
         """ Sets up the mininet instance, programs the switches,
             and starts the mininet CLI. This is the main method to run after
             initializing the object.
@@ -202,7 +203,7 @@ class ExerciseRunner:
         # some programming that must happen after the net has started
         self.program_hosts()
         # self.program_switches() # NOTE: 拆开如下：
-
+        
         # 生成五个进程
         index = 0
         while index < 4:
@@ -211,7 +212,6 @@ class ExerciseRunner:
                 break
             index += 1
         
-        print(index)
         if (index < 4):
             # for sw_name, sw_dict in self.switches.items():
             sw_name = 's' + str(index+1) # TODO: 硬编码
@@ -243,7 +243,6 @@ class ExerciseRunner:
         print('======================================================================')
         print('')
 
-        setLogLevel( 'info' )
         
         PS = self.net.hosts[24]
         PS.cmd("python3 ./host/receive.py > ./logs/receiver.log &")
