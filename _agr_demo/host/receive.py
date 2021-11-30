@@ -2,30 +2,48 @@
 import sys
 import struct
 import os
+import time
+import logging
 
 from scapy.all import sniff, sendp, hexdump, get_if_list, get_if_hwaddr
 from scapy.all import Packet, IPOption
 from scapy.all import ShortField, IntField, LongField, BitField, FieldListField, FieldLenField
-from scapy.all import IP, TCP, UDP, Raw, ICMP
+from scapy.all import Ether, IP, Raw, ICMP
 from scapy.layers.inet import _IPOption_HDR
-from atp_header import ATP
+from atp_header import ATP, ATPData
 from utils import *
+from config import *
 
 def handle_pkt(pkt):
-    if (ICMP not in pkt) and ((ATP in pkt) or (IP in pkt)) :
-        print("got a packet:")
-        pkt.show()
+    if ((ATP in pkt) or (IP in pkt)) : #  (ICMP not in pkt) and 
+        # print("got a packet:")
+        # pkt.show()
         # hexdump(pkt)
         # print("len(pkt) = ", len(pkt))
         sys.stdout.flush()
 
 def main():
+    logger = logging.getLogger(__name__)
+    workdir = os.getcwd()
+    logDir = os.path.join(workdir, RECEIVER_LOG)
+    setHandler(logger, logDir)
+
     ifaces = [i for i in os.listdir('/sys/class/net/') if 'eth' in i]
     iface = ifaces[0]
     print(("sniffing on %s" % iface))
     sys.stdout.flush()
-    packets = sniff(iface = iface, prn = lambda x: handle_pkt(x)) # , timeout = 120
-    print("rec %d packets" % len(packets))
+
+    count = PKTNUM * PS_RECEIVE_FLOW * ALLOW_LOSS_RATE # DEBUG:
+    pkt_len = len(Ether()/IP()/ATP()/ATPData()) * 8
+    time_start = time.time()
+    packets = sniff(iface = iface, prn = lambda x: handle_pkt(x), count = count) # , timeout = 120
+    time_end = time.time()
+    totalTime = time_end - time_start
+
+    logger.info('[rec]Time cost: ' + str(totalTime) + 's')
+    logger.info("[rec]Receive %d packets" % len(packets))
+    logger.info('[rec]Throughout: ' + str(pkt_len*len(packets)/totalTime) + 'bps')
+    
 
 if __name__ == '__main__':
     main()

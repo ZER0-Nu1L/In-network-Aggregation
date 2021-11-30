@@ -32,6 +32,7 @@ from mininet.link import TCLink
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.util import pmonitor
+from config import *
 
 from p4runtime_switch import P4RuntimeSwitch
 import p4runtime_lib.simple_controller
@@ -203,8 +204,8 @@ class ExerciseRunner:
         # some programming that must happen after the net has started
         self.program_hosts()
         # self.program_switches() # NOTE: 拆开如下：
-        
-        # 生成五个进程
+
+        # 生成五个进程（一个主进程，另外四个用于启动控制平面和四个交换机的交互）
         index = 0
         while index < 4:
             pid = os.fork()
@@ -232,7 +233,7 @@ class ExerciseRunner:
                     workdir=os.getcwd(),
                     proto_dump_fpath=outfile)
             print(sw_name + " finish its work.")
-            sys.exit(0) # TODO: 结束子进程
+            sys.exit(0) # NOTE: 结束子进程
                 
 
         ## Test aggregation
@@ -243,56 +244,75 @@ class ExerciseRunner:
         print('======================================================================')
         print('')
 
-        
+
         PS = self.net.hosts[24]
-        PS.cmd("python3 ./host/receive.py > ./logs/receiver.log &")
+        # workdir = os.getcwd()
+        # logDir = os.path.join(workdir, RECEIVER_LOG)
+        # PS.cmd("python3 ./host/receive.py" + " > " + logDir + " &")
+        PS.cmd("python3 ./host/receive.py" + " &")
 
-        # h1, h5, h8, h13, h16, h19, h24
-        hostGroup1 = [self.net.hosts[0], self.net.hosts[4], self.net.hosts[7], self.net.hosts[12], self.net.hosts[15], self.net.hosts[18], self.net.hosts[23]]
-        # h4, h7, h12, h15, h18, h23        
-        hostGroup2 = [self.net.hosts[3], self.net.hosts[6], self.net.hosts[11], self.net.hosts[14], self.net.hosts[17], self.net.hosts[22]]
-        # h2, h11, h14, h17, h20, h22
-        hostGroup3 = [self.net.hosts[1], self.net.hosts[10], self.net.hosts[13], self.net.hosts[16], self.net.hosts[19], self.net.hosts[21]]
-        # h3, h6, h9
-        hostGroup4 = [self.net.hosts[2], self.net.hosts[5], self.net.hosts[8]]
-        # h10, h21
-        hostGroup5 = [self.net.hosts[9], self.net.hosts[20]]
+        if(TEST_MODE == OUR_SOLUTION):
+            # 1. Our solution
+            # h1, h5, h8, h13, h16, h19, h24
+            hostGroup1 = [self.net.hosts[0], self.net.hosts[4], self.net.hosts[7], self.net.hosts[12], self.net.hosts[15], self.net.hosts[18], self.net.hosts[23]]
+            # h4, h7, h12, h15, h18, h23        
+            hostGroup2 = [self.net.hosts[3], self.net.hosts[6], self.net.hosts[11], self.net.hosts[14], self.net.hosts[17], self.net.hosts[22]]
+            # h2, h11, h14, h17, h20, h22
+            hostGroup3 = [self.net.hosts[1], self.net.hosts[10], self.net.hosts[13], self.net.hosts[16], self.net.hosts[19], self.net.hosts[21]]
+            # h3, h6, h9
+            hostGroup4 = [self.net.hosts[2], self.net.hosts[5], self.net.hosts[8]]
+            # h10, h21
+            hostGroup5 = [self.net.hosts[9], self.net.hosts[20]]
 
-        popens = {}
-        for host in self.net.hosts:
-            if host in hostGroup1:
-                popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 7 --switchId 1 --dataSeq '+ host.name[1:])
-            elif host in hostGroup2:
-                popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 2 --dataSeq '+ host.name[1:])
-            elif host in hostGroup3:
-                popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 3 --dataSeq '+ host.name[1:])
-            elif host in hostGroup4:
-                popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 3 --switchId 4 --dataSeq '+ host.name[1:])
-            elif host in hostGroup5:
-                popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 2 --switchId 0 --dataSeq '+ host.name[1:])
-
-        endTime = time() + 500 # seconds
-        with open('logs/aggregation.log', 'w') as file:
-            for host, line in pmonitor( popens, timeoutms=500 ):
+            popens = {}
+            for host in self.net.hosts:
                 if host in hostGroup1:
-                    aggreNum = 1
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 7 --switchId 1 --dataSeq '+ host.name[1:])
                 elif host in hostGroup2:
-                    aggreNum = 2
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 2 --dataSeq '+ host.name[1:])
                 elif host in hostGroup3:
-                    aggreNum = 3
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 3 --dataSeq '+ host.name[1:])
                 elif host in hostGroup4:
-                    aggreNum = 4
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 3 --switchId 4 --dataSeq '+ host.name[1:])
                 elif host in hostGroup5:
-                    aggreNum = 5
-                
-                if host:
-                    file.write( '[aggre-%s]<%s>: %s' % ( str(aggreNum), host.name, line ) )
-                if time() >= endTime:
-                    for switchProcess in popens.values():
-                        switchProcess.send_signal( SIGINT )
-        
-        # sleep(320)  # sleep as long as receive.py
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 2 --switchId 0 --dataSeq '+ host.name[1:])
 
+            endTime = time() + AGGRE_MONITOR_TIME
+        elif (TEST_MODE == SWTICHML):
+            # 2. SwitchML
+            hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2], self.net.hosts[3], self.net.hosts[4], self.net.hosts[5], self.net.hosts[6], self.net.hosts[7]]
+            hostGroup2 = [self.net.hosts[8], self.net.hosts[9], self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15]]
+            hostGroup3 = [self.net.hosts[16], self.net.hosts[17], self.net.hosts[18], self.net.hosts[19], self.net.hosts[20], self.net.hosts[21], self.net.hosts[22], self.net.hosts[23]]
+
+            popens = {}
+            for host in self.net.hosts:
+                if host in hostGroup1:
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 2 --dataSeq '+ host.name[1:])
+                elif host in hostGroup2:
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 3 --dataSeq '+ host.name[1:])
+                elif host in hostGroup3:
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 4 --dataSeq '+ host.name[1:])
+
+            endTime = time() + AGGRE_MONITOR_TIME
+        
+        # 对输出进行检测
+        # logDir = os.path.join(workdir, AGGRE_MONITOR_LOG)
+        # with open(logDir, 'w') as file:
+        for host, _ in pmonitor( popens, timeoutms=500 ): # _ -> line
+            # DEBUG: 
+            # if host in hostGroup1:
+            #     aggreNum = 1
+            # elif host in hostGroup2:
+            #     aggreNum = 2
+            # elif host in hostGroup3:
+            #     aggreNum = 3
+            
+            # if host:
+            #     file.write( '[aggre-%s]<%s>: %s' % ( str(aggreNum), host.name, line ) )
+            if time() >= endTime:
+                for switchProcess in popens.values():
+                    switchProcess.send_signal( SIGINT )
+        
         self.do_net_cli()
 
         # stop right after the CLI is exited
@@ -467,7 +487,7 @@ def get_args():
 
 if __name__ == '__main__':
     # from mininet.log import setLogLevel
-    # setLogLevel("info")
+    setLogLevel("info")
 
     args = get_args()
     exercise = ExerciseRunner(args.topo, args.log_dir, args.pcap_dir,

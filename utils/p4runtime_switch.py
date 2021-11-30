@@ -125,6 +125,8 @@ class P4RuntimeSwitch(P4Switch):
         info(cmd + "\n")
 
 
+        # DEBUG: log file is too huge
+        self.log_file = '/dev/null'
         pid = None
         with tempfile.NamedTemporaryFile() as f:
             self.cmd(cmd + ' >' + self.log_file + ' 2>&1 & echo $! >> ' + f.name)

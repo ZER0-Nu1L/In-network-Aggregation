@@ -19,6 +19,7 @@ import json
 import os
 import sys
 import time
+from config import *
 
 from . import bmv2
 from . import helper
@@ -169,13 +170,13 @@ def program_switch(addr, device_id, sw_conf_file, workdir, proto_dump_fpath):
 
         # NOTE: printCounter work well HERE!
         logDir = os.path.join(workdir, 'logs/' + sw.name + '-inout.log')
-        endTime = time.time() + 320
+        endTime = time.time() + READ_TIME  # DEBUG:
         while time.time() <= endTime:
             with open(logDir, 'a') as file:
                 file.write('\n----- Reading tunnel counters -----\n')
                 file.write(printCounter(p4info_helper, sw, "MyIngress.ingressCounter", 0))  # TODO: 不知道这个 index 是干嘛的
-                file.write(printCounter(p4info_helper, sw, "MyIngress.egressCounter", 1))
-            time.sleep(2)  # DEBUG:
+                file.write(printCounter(p4info_helper, sw, "MyIngress.egressCounter", 0))
+            time.sleep(READTABLE_TIME)  # DEBUG:
 
     finally:
         sw.shutdown()

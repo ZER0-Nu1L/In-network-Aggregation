@@ -1,5 +1,13 @@
 from scapy.all import get_if_list
+import logging
 
+def setHandler(logger, logDir):
+    logger.setLevel(level = logging.INFO)
+    handler = logging.FileHandler(logDir)
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 def get_if():
     '''
@@ -17,7 +25,7 @@ def get_if():
     return iface
 
 def float_to_int(num_list):
-    scale_factor = 100000000  # FIXME: 10^8
+    scale_factor = 100000000
     res = []
     for num in num_list:
         res.append(int(num * scale_factor))
@@ -25,7 +33,7 @@ def float_to_int(num_list):
 
 
 def int_to_float(num_list):
-    scale_factor = 1000000.0 # FIXME: 和 data 大小有关 16位整数(2**16)/浮点数，5+1位？
+    scale_factor = 100000000.0
     res = []
     for num in num_list:
         res.append(float(num / scale_factor))
