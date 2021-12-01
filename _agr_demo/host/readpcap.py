@@ -6,7 +6,7 @@ from config import *
 
 
 
-packets = rdpcap(WRITE_PCAP_DIR+'/param_switchML-h1.pcap')
+packets = rdpcap(REPLAY_PCAP_DIR+'/param_switchML-h1.pcap')
 
 for packet in packets:
    if packet.haslayer(ATP):

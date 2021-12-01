@@ -29,7 +29,7 @@ def packet_genarate(packageNamePrefix, PSHost, pktNum, hostGroup, groupPackageCo
     groupPackageConf: groupID - switchID - degree
     '''
     workdir = os.getcwd()
-    pcapDir = os.path.join(workdir, WRITE_PCAP_DIR)
+    pcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
 
     for groupID, group in enumerate(hostGroup):
         for host in group:
@@ -47,21 +47,20 @@ def _packet_genarate_all():
     '''
     # 并不能用:sob:，因为获取
     '''
-    # switchML/ATP
-    packageNamePrefix = 'param_switchML-'
-    # packageNamePrefix = 'param_ATP-'
+    # switchML/ATP，共用
+    packageNamePrefix = REPLAY_PCAP_PREFIX_SWITCHML
     PSHost = "10.3.9.1"
     pktNum = PKTNUM
     hostGroup = [
         ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8'],
-        ['h9', 'h10', 'h11', 'h12', 'h13', 'h14', 'h15'],
-        ['h16', 'h17', 'h18', 'h19', 'h20', 'h21', 'h22', 'h23', 'h24']
+        ['h9', 'h10', 'h11', 'h12', 'h13', 'h14', 'h15', 'h16'],
+        ['h17', 'h18', 'h19', 'h20', 'h21', 'h22', 'h23', 'h24']
     ]
     groupPackageConf = [(2, 8), (3, 8), (4, 8)]
     packet_genarate(packageNamePrefix, PSHost, pktNum, hostGroup, groupPackageConf)
-    '''
+    
     # NGA
-    packageNamePrefix = 'param_NGA-'
+    packageNamePrefix = REPLAY_PCAP_PREFIX_NGA
     PSHost = "10.3.9.1"
     pktNum = PKTNUM
     hostGroup = [
@@ -71,13 +70,14 @@ def _packet_genarate_all():
         ['h3', 'h6', 'h9'],
         ['h10', 'h21']
     ]
-    groupPackageConf = [(7, 1), (6, 2), (6, 3), (3, 4), (2, 0)]
-    '''
+    groupPackageConf = [(1, 7), (2, 6), (3, 6), (4, 3), (0, 2)]
+    packet_genarate(packageNamePrefix, PSHost, pktNum, hostGroup, groupPackageConf)
+    
 
 if __name__ == '__main__':
     logger = logging.getLogger(__name__)
     workdir = os.getcwd()
-    logDir = os.path.join(workdir, WRITE_PCAP_LOG)
+    logDir = os.path.join(workdir, REPLAY_PCAP_LOG)
     setHandler(logger, logDir)
 
     _packet_genarate_all()

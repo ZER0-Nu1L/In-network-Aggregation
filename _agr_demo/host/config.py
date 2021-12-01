@@ -19,15 +19,19 @@ JOB_NUM = 1024
 DATADIR = "/home/p4/paras/"
 
 # Number of packages
-PKTNUM = 10
-ALLOW_LOSS_RATE = 0.97
-WRITE_PCAP_LOG = 'logs/write_pcap.log'
-WRITE_PCAP_DIR = 'mypcap/'
+PKTNUM = 1000
+ALLOW_LOSS_RATE = 1
+REPLAY_PCAP_LOG = 'logs/write_pcap.log' 
+REPLAY_PCAP_DIR = 'mypcap/1000/'
+REPLAY_PCAP_PREFIX_NGA = 'param_NGA-'
+REPLAY_PCAP_PREFIX_SWITCHML = 'param_switchML-'
+REPLAY_PCAP_PREFIX_ATP = 'param_switchML-' # 共用
 
-OUR_SOLUTION_FLOW = 6
+# receiver set
+NGA_FLOW = 6
 SWITCHML_FLOW = 3
 ATP_FLOW = 1
-PS_RECEIVE_FLOW = SWITCHML_FLOW
+PS_RECEIVE_FLOW = NGA_FLOW
 
 # host monitor
 AGGRE_MONITOR_LOG = 'logs/aggregation.log'
