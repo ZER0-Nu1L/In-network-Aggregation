@@ -14,20 +14,21 @@ from atp_header import ATP, ATPData
 from utils import *
 from config import *
 
+logger = logging.getLogger(__name__)
+workdir = os.getcwd()
+logDir = os.path.join(workdir, RECEIVER_LOG)
+setHandler(logger, logDir)
+
 def handle_pkt(pkt):
     if ((ATP in pkt) or (IP in pkt)) : #  (ICMP not in pkt) and 
         # print("got a packet:")
         # pkt.show()
         # hexdump(pkt)
+        logger.info('[rec]aggIndex: ' + str(pkt[ATP].aggIndex))  # DEBUG:
         # print("len(pkt) = ", len(pkt))
         sys.stdout.flush()
 
 def main():
-    logger = logging.getLogger(__name__)
-    workdir = os.getcwd()
-    logDir = os.path.join(workdir, RECEIVER_LOG)
-    setHandler(logger, logDir)
-
     ifaces = [i for i in os.listdir('/sys/class/net/') if 'eth' in i]
     iface = ifaces[0]
     print(("sniffing on %s" % iface))

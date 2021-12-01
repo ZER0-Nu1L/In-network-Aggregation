@@ -14,7 +14,7 @@ class ATP(Packet):
         BitField("ecn", 0, ECNBIT),
         BitField("resend", 0, RESENDBIT),
         BitField("aggIndex", 0, INDEXBIT),
-        BitField("timestamp", 0, TIMEBIT),
+        # BitField("timestamp", 0, TIMEBIT),
         BitField("switchId", 0, SWITCHIDBIT),
         BitField("sequenceId", 0, SEQUENCEBIT),
     ]
