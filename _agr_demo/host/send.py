@@ -22,23 +22,33 @@ class DataManager:
         self.dst_ip = dst_ip
         self.data = float_to_int(data)
     
-    def _partition_data(self, worker_id, switch_id, degree): # TODO: worker_id 尚未支持
+    def _partition_data(self, worker_id, switch_id, degree, srcIP = None, srcMac = None): # TODO: worker_id 尚未支持
         '''
         把data以一个payload的大小为单位进行划分
         '''
         packet_list = []
-        for i, index in enumerate(range(0, len(self.data), DATANUM)):
+        i = 0
+        for index in range(0, len(self.data), DATANUM):
             iface = get_if()
             left = index
             right = index+DATANUM if (index+DATANUM <= len(self.data)) else len(self.data)
 
             args = ["d00", "d01", "d02", "d03", "d04", "d05", "d06", "d07", "d08", "d09", "d10", "d11", "d12", "d13", "d14", "d15", "d16", "d17", "d18", "d19", "d20", "d21", "d22", "d23", "d24", "d25", "d26", "d27", "d28", "d29", "d30", "d31"]
-            packet_list.append(
-                Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff') /
-                IP(dst=self.dst_ip, proto=0x12) /
-                ATP(aggregationDegree = degree, aggIndex = i, switchId = switch_id) /  # NOTE: 这里的 aggIndex 暂时比较随意
-                ATPData(**dict(zip(args, self.data[left:right])))
-                )
+            if(srcIP == None and srcMac == None):
+                packet_list.append(
+                    Ether(dst='ff:ff:ff:ff:ff:ff') / # src=get_if_hwaddr(iface), 可以不要它会自己加载
+                    IP(dst=self.dst_ip, proto=0x12) /
+                    ATP(aggregationDegree = degree, aggIndex = i, switchId = switch_id) /
+                    ATPData(**dict(zip(args, self.data[left:right])))
+                    )
+            elif(srcIP != None and srcMac != None):
+                packet_list.append(
+                    Ether(src = srcMac, dst = 'ff:ff:ff:ff:ff:ff') / # src=get_if_hwaddr(iface), 可以不要它会自己加载
+                    IP(src = srcIP, dst=self.dst_ip, proto=0x12) /
+                    ATP(aggregationDegree = degree, aggIndex = i, switchId = switch_id) /
+                    ATPData(**dict(zip(args, self.data[left:right])))
+                    )
+            i += 1 % JOB_NUM
         return packet_list
 
 if __name__ == '__main__':
@@ -51,13 +61,13 @@ if __name__ == '__main__':
     parser.add_argument('host', type=str, help="The destination host to use")
     parser.add_argument('--degree', type=int)
     parser.add_argument('--switchId', type=int)
-    parser.add_argument('--dataSeq', type=int)
+    # parser.add_argument('--dataSeq', type=int)
     args = parser.parse_args()
 
     host = args.host
     degree = args.degree
     switchID = args.switchId
-    dataSeq = args.dataSeq
+    # dataSeq = args.dataSeq
     
     test_data = [ float(i) / (DATANUM * PKTNUM) for i in range(0, DATANUM * PKTNUM) ] # DEBUG:
     
@@ -68,7 +78,7 @@ if __name__ == '__main__':
     manager = DataManager(host, test_data)
     packet_list = manager._partition_data(1, switchID, degree)
     
-    iface = get_if()
+    iface = get_if()    # 'eth0'
     time_start = time.time()
     
     logger.info(host + " the number of packet is:" + str(len(packet_list)))

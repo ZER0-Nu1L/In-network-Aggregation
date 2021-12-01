@@ -18,10 +18,14 @@ def get_if():
     for i in get_if_list():
         if "eth0" in i:
             iface=i
+            print(i)
             break;
     if not iface:
-        print("Cannot find eth0 interface")
-        exit(1)
+        # DEBUG: 这里是为 writepcap.py 服务的，如果不用 writepcap 请注释掉这一行
+         iface = "eth0"
+        # NOTE: 下面是原本的：
+        # print("Cannot find eth0 interface")
+        # exit(1)
     return iface
 
 def float_to_int(num_list):
