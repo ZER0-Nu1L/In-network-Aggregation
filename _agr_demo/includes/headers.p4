@@ -35,8 +35,8 @@ header atp_t {      // TODO: 硬编码
     bit<1> isAck;               // TODO: 
     bit<1> ecn;                 // TODO: 
     bit<1> resend;              // TODO: 
-    bit<5> aggIndex;
-    bit<5> timestamp;           // TODO: 
+    bit<10> aggIndex;
+    // bit<5> timestamp;           // TODO: 
     bit<5> switchId;
     bit<32> sequenceId;         // TODO: 
 }
@@ -90,7 +90,8 @@ struct headers {
 
 struct metadata { // FIXME: 每次都会清空对吧，这和直接当场定义有什么区别呢
     bit<1> tobe_agg;
-    bit<5> aggIndex;  // int<8> -x-> bit<32>
+    bit<1> same_rock;
+    bit<10> aggIndex;  // int<8> -x-> bit<32>
     // count 的中间量
     bit<5> count_value; // 最多不超过 aggregationDegree 的大小，类型与之对应 bit<5>
     // aggregtor value 的中间量

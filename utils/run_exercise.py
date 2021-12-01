@@ -255,7 +255,7 @@ class ExerciseRunner:
             # 1. Our solution
             # h1, h5, h8, h13, h16, h19, h24
             hostGroup1 = [self.net.hosts[0], self.net.hosts[4], self.net.hosts[7], self.net.hosts[12], self.net.hosts[15], self.net.hosts[18], self.net.hosts[23]]
-            # h4, h7, h12, h15, h18, h23        
+            # h4, h7, h12, h15, h18, h23
             hostGroup2 = [self.net.hosts[3], self.net.hosts[6], self.net.hosts[11], self.net.hosts[14], self.net.hosts[17], self.net.hosts[22]]
             # h2, h11, h14, h17, h20, h22
             hostGroup3 = [self.net.hosts[1], self.net.hosts[10], self.net.hosts[13], self.net.hosts[16], self.net.hosts[19], self.net.hosts[21]]
@@ -267,33 +267,32 @@ class ExerciseRunner:
             popens = {}
             for host in self.net.hosts:
                 if host in hostGroup1:
-                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 7 --switchId 1 --dataSeq '+ host.name[1:])
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 7 --switchId 1')
                 elif host in hostGroup2:
-                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 2 --dataSeq '+ host.name[1:])
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 2')
                 elif host in hostGroup3:
-                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 3 --dataSeq '+ host.name[1:])
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 3')
                 elif host in hostGroup4:
-                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 3 --switchId 4 --dataSeq '+ host.name[1:])
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 3 --switchId 4')
                 elif host in hostGroup5:
-                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 2 --switchId 0 --dataSeq '+ host.name[1:])
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 2 --switchId 0')
 
-            endTime = time() + AGGRE_MONITOR_TIME
-        elif (TEST_MODE == SWTICHML):
+        elif (TEST_MODE == SWTICHML or TEST_MODE == ATP):
             # 2. SwitchML
-            hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2], self.net.hosts[3], self.net.hosts[4], self.net.hosts[5], self.net.hosts[6], self.net.hosts[7]]
-            hostGroup2 = [self.net.hosts[8], self.net.hosts[9], self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15]]
+            hostGroup1 = [self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7]]
+            hostGroup2 = [self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15]]
             hostGroup3 = [self.net.hosts[16], self.net.hosts[17], self.net.hosts[18], self.net.hosts[19], self.net.hosts[20], self.net.hosts[21], self.net.hosts[22], self.net.hosts[23]]
 
             popens = {}
             for host in self.net.hosts:
                 if host in hostGroup1:
-                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 2 --dataSeq '+ host.name[1:])
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 2')
                 elif host in hostGroup2:
-                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 3 --dataSeq '+ host.name[1:])
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 3')
                 elif host in hostGroup3:
-                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 4 --dataSeq '+ host.name[1:])
+                    popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 4')
 
-            endTime = time() + AGGRE_MONITOR_TIME
+        endTime = time() + AGGRE_MONITOR_TIME
         
         # 对输出进行检测
         # logDir = os.path.join(workdir, AGGRE_MONITOR_LOG)

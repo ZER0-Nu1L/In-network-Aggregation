@@ -4,7 +4,7 @@
 #include "includes/headers.p4"
 #include "includes/parser.p4"
 
-#define JOB_NUM 512                // 支持的聚合 Job 数量
+#define JOB_NUM 1024                // 支持的聚合 Job 数量
 
 
 /*************************************************************************
@@ -27,7 +27,6 @@ control MyIngress(inout headers hdr,
     counter(1<<16, CounterType.packets) ingressCounter; // 1 << 16
     counter(1<<16, CounterType.packets) egressCounter;
 
-
     // NOTE: switchID check
     action set_agg() {
         meta.tobe_agg = 1;
@@ -40,6 +39,9 @@ control MyIngress(inout headers hdr,
 
     action count_aggr_egress() {
         egressCounter.count((bit<32>) hdr.atp.sequenceId); // TODO: 没有完全懂 workerMap, sequenceId 0
+        // hdr.atp.aggregationDegree = 3;  // NOTE: 适配ATP路由策略，对于仅仅聚合一次的路由策略没有太大影响
+        // hdr.atp.switchId = 1;       // NOTE: 防止ATP路由策略下，回去的时候又重新聚合。
+        // DEBUG:  NGS 和 SwitchML 不能用，ATP用，（尤其是 switchID）
     }
     
     table switch_check {
@@ -52,6 +54,23 @@ control MyIngress(inout headers hdr,
         }
         size = 1024;
         default_action = unset_agg();
+    }
+
+    // NOTE: Same rock check
+    action set_same() {
+        meta.same_rock = 1;
+    }
+
+    table rock_check {
+        key = {
+            hdr.atp.switchId: exact;
+        }
+        actions = {
+            set_same;
+            NoAction;
+        }
+        size = 1024;
+        default_action = NoAction();
     }
     
     action drop() {
@@ -102,6 +121,20 @@ control MyIngress(inout headers hdr,
         default_action = NoAction();
     }
 
+    table aggregate_link_lpm_atp {
+        key = {
+            hdr.ipv4.srcAddr: lpm;
+            hdr.ipv4.dstAddr: exact;
+            standard_metadata.ingress_port: exact;
+        }
+        actions = {
+            aggregation_foward;
+            NoAction;
+        }
+        size = 1024;
+        default_action = NoAction();
+    }
+    
     // NOTE: counter
     register<bit<5>>(JOB_NUM) count_reg;       // 和 aggregationDegree 同类型
 
@@ -612,13 +645,13 @@ control MyIngress(inout headers hdr,
         switch_check.apply();
         if(meta.tobe_agg == 1 && hdr.atp.isValid()) {        // NOTE: 在此交换机上聚合的场景
             meta.aggIndex = hdr.atp.aggIndex;
-            count_read();
 
             vector00_add(); vector01_add(); vector02_add(); vector03_add(); vector04_add(); vector05_add(); vector06_add(); vector07_add(); vector08_add(); vector09_add();
             vector10_add(); vector11_add(); vector12_add(); vector13_add(); vector14_add(); vector15_add(); vector16_add(); vector17_add(); vector18_add(); vector19_add();
             vector20_add(); vector21_add(); vector22_add(); vector23_add(); vector24_add(); vector25_add(); vector26_add(); vector27_add(); vector28_add(); vector29_add();
             vector30_add(); vector31_add();
 
+            // count_read();
             count_add();
 
             if((bit<5>)meta.count_value == hdr.atp.aggregationDegree) {
@@ -634,8 +667,13 @@ control MyIngress(inout headers hdr,
                 vector20_clean(); vector21_clean(); vector22_clean(); vector23_clean(); vector24_clean(); vector25_clean(); vector26_clean(); vector27_clean(); vector28_clean(); vector29_clean();
                 vector30_clean(); vector31_clean();
 
-                count_aggr_egress();
-                ipv4_lpm.apply();
+                rock_check.apply();  // NOTE: 适配ATP路由策略，两次聚合后回到原机架的路由问题
+                count_aggr_egress();    // NOTE: 顺序重要
+                if(meta.same_rock == 1) {
+                    aggregate_link_lpm_atp.apply(); // NOTE: Actually, there is nothing in the P4 language that mandates at-most-once execution for each table, although many targets do.
+                } else {
+                    ipv4_lpm.apply();
+                }
             } else {
                 drop();
             }
@@ -669,7 +707,7 @@ control MyComputeChecksum(inout headers  hdr, inout metadata meta) {
 	update_checksum(
 	    hdr.ipv4.isValid(),
             { hdr.ipv4.version,
-	      hdr.ipv4.ihl,
+	          hdr.ipv4.ihl,
               hdr.ipv4.diffserv,
               hdr.ipv4.totalLen,
               hdr.ipv4.identification,
