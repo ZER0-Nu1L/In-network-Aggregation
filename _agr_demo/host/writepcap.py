@@ -16,7 +16,6 @@ hostIP = {
     "h17": "10.3.1.1", "h18": "10.3.2.1", "h19": "10.3.3.1", "h20": "10.3.4.1", "h21": "10.3.5.1", "h22": "10.3.6.1", "h23": "10.3.7.1", "h24": "10.3.8.1"
 }
 
-
 def packet_list(PSHost, degree, switchID, pktNum, srcIP, srcMac):
     test_data = [ float(i) / (DATANUM * pktNum) for i in range(0, DATANUM * pktNum) ]
     manager = DataManager(PSHost, test_data)
@@ -81,5 +80,3 @@ if __name__ == '__main__':
     setHandler(logger, logDir)
 
     _packet_genarate_all()
-
-

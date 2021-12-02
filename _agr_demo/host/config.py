@@ -15,12 +15,11 @@ DATANUM = 32
 DATABYTE = 124 # 31 * 4 即 payload 中 DATANUM 个 4 字节整数
 JOB_NUM = 1024
 
-# Data
-DATADIR = "/home/p4/paras/"
-
 # Number of packages
 PKTNUM = 1000
 ALLOW_LOSS_RATE = 1
+
+# if(SEND_MODE == TCPREPLAY), configure:
 REPLAY_PCAP_LOG = 'logs/write_pcap.log' 
 REPLAY_PCAP_DIR = 'mypcap/1000/'
 REPLAY_PCAP_PREFIX_NGA = 'param_NGA-'
