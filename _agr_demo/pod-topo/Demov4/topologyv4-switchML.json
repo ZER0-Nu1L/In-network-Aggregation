@@ -80,10 +80,10 @@
  
     },
     "switches": {
-        "s1": { "runtime_json" : "pod-topo/s1-runtimev4-ATP.json" },
-        "s2": { "runtime_json" : "pod-topo/s2-runtimev4.json" },
-        "s3": { "runtime_json" : "pod-topo/s3-runtimev4.json" },
-        "s4": { "runtime_json" : "pod-topo/s4-runtimev4-ATP.json" }
+        "s1": { "runtime_json" : "pod-topo/Demov4/s1-runtimev4-switchML.json" },
+        "s2": { "runtime_json" : "pod-topo/Demov4/s2-runtimev4.json" },
+        "s3": { "runtime_json" : "pod-topo/Demov4/s3-runtimev4.json" },
+        "s4": { "runtime_json" : "pod-topo/Demov4/s4-runtimev4-switchML.json" }
     },
     "links": [
         ["s1-p1", "s2-p9"], ["s1-p2", "s3-p9"], ["s1-p3", "s4-p9"],

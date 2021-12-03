@@ -11,7 +11,7 @@
                            "arp -i eth0 -s 10.0.3.30 08:00:00:00:03:00"]}
     },
     "switches": {
-        "s1": { "runtime_json" : "pod-topo/s1-runtimev1.json" }
+        "s1": { "runtime_json" : "pod-topo/Demov1/s1-runtimev1.json" }
     },
     "links": [
         ["h1", "s1-p1"], ["h2", "s1-p2"], ["h3", "s1-p3"]

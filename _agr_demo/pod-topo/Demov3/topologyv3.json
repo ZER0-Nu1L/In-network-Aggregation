@@ -29,10 +29,10 @@
                            "arp -i eth0 -s 10.0.9.90 08:00:00:00:09:00"]}
     },
     "switches": {
-        "s1": { "runtime_json" : "pod-topo/s1-runtimev3.json" },
-        "s2": { "runtime_json" : "pod-topo/s2-runtimev3.json" },
-        "s3": { "runtime_json" : "pod-topo/s3-runtimev3.json" },
-        "s4": { "runtime_json" : "pod-topo/s4-runtimev3.json" }
+        "s1": { "runtime_json" : "pod-topo/Demov3/s1-runtimev3.json" },
+        "s2": { "runtime_json" : "pod-topo/Demov3/s2-runtimev3.json" },
+        "s3": { "runtime_json" : "pod-topo/Demov3/s3-runtimev3.json" },
+        "s4": { "runtime_json" : "pod-topo/Demov3/s4-runtimev3.json" }
     },
     "links": [
         ["h1", "s1-p1"], ["h2", "s1-p2"], ["h3", "s1-p3"],
