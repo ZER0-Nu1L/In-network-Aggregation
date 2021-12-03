@@ -115,8 +115,8 @@ class P4RuntimeSwitch(P4Switch):
             args.append("--no-p4")
         if self.enable_debugger:
             args.append("--debugger")
-        if self.log_console:
-            args.append("--log-console")
+        # if self.log_console:
+            # args.append("--log-console")
         if self.thrift_port:
             args.append('--thrift-port ' + str(self.thrift_port))
         if self.grpc_port:
@@ -126,10 +126,10 @@ class P4RuntimeSwitch(P4Switch):
 
 
         # DEBUG: log file is too huge
-        self.log_file = '/dev/null'
         pid = None
         with tempfile.NamedTemporaryFile() as f:
-            self.cmd(cmd + ' >' + self.log_file + ' 2>&1 & echo $! >> ' + f.name)
+            # self.cmd(cmd + ' >' + self.log_file + ' 2>&1 & echo $! >> ' + f.name)
+            self.cmd(cmd + ' 2>&1 & echo $! >> ' + f.name)
             pid = int(f.read())
         debug("P4 switch {} PID is {}.\n".format(self.name, pid))
         if not self.check_switch_started(pid):

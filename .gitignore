@@ -3,6 +3,7 @@
 !*p4app.json
 !topology*.json
 !*-runtime*.json
+!*topo*.json
 *.pcap
 
 # Build folders

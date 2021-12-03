@@ -245,53 +245,70 @@ class ExerciseRunner:
         print('')
 
 
-        PS = self.net.hosts[24]
+        PS = self.net.hosts[PS_INDEX]
         # workdir = os.getcwd()
         # logDir = os.path.join(workdir, RECEIVER_LOG)
         # PS.cmd("python3 ./host/receive.py" + " > " + logDir + " &")
         PS.cmd("python3 ./host/receive.py" + " &")
         sleep(5) # DEBUG:
+        popens = {}
         if(SEND_MODE == GENERATOR_AND_SEND):
+            print("SEND_MODE == GENERATOR_AND_SEND")
             if(TEST_MODE == NGA):
-                # 1. Our solution
-                # h1, h5, h8, h13, h16, h19, h24
-                hostGroup1 = [self.net.hosts[0], self.net.hosts[4], self.net.hosts[7], self.net.hosts[12], self.net.hosts[15], self.net.hosts[18], self.net.hosts[23]]
-                # h4, h7, h12, h15, h18, h23
-                hostGroup2 = [self.net.hosts[3], self.net.hosts[6], self.net.hosts[11], self.net.hosts[14], self.net.hosts[17], self.net.hosts[22]]
-                # h2, h11, h14, h17, h20, h22
-                hostGroup3 = [self.net.hosts[1], self.net.hosts[10], self.net.hosts[13], self.net.hosts[16], self.net.hosts[19], self.net.hosts[21]]
-                # h3, h6, h9
-                hostGroup4 = [self.net.hosts[2], self.net.hosts[5], self.net.hosts[8]]
-                # h10, h21
-                hostGroup5 = [self.net.hosts[9], self.net.hosts[20]]
+                print("TEST_MODE == NGA")
+                if(TOPO_VERSION == DEMOV4):
+                    print("TOPO_VERSION == DEMOV4")
+                    # 1. Our solution
+                    # h1, h5, h8, h13, h16, h19, h24
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[4], self.net.hosts[7], self.net.hosts[12], self.net.hosts[15], self.net.hosts[18], self.net.hosts[23]]
+                    # h4, h7, h12, h15, h18, h23
+                    hostGroup2 = [self.net.hosts[3], self.net.hosts[6], self.net.hosts[11], self.net.hosts[14], self.net.hosts[17], self.net.hosts[22]]
+                    # h2, h11, h14, h17, h20, h22
+                    hostGroup3 = [self.net.hosts[1], self.net.hosts[10], self.net.hosts[13], self.net.hosts[16], self.net.hosts[19], self.net.hosts[21]]
+                    # h3, h6, h9
+                    hostGroup4 = [self.net.hosts[2], self.net.hosts[5], self.net.hosts[8]]
+                    # h10, h21
+                    hostGroup5 = [self.net.hosts[9], self.net.hosts[20]]
 
-                popens = {}
-                for host in self.net.hosts:
-                    if host in hostGroup1:
-                        popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 7 --switchId 1')
-                    elif host in hostGroup2:
-                        popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 2')
-                    elif host in hostGroup3:
-                        popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 3')
-                    elif host in hostGroup4:
-                        popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 3 --switchId 4')
-                    elif host in hostGroup5:
-                        popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 2 --switchId 0')
+                    for host in self.net.hosts:
+                        if host in hostGroup1:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 7 --switchId 1')
+                        elif host in hostGroup2:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 2')
+                        elif host in hostGroup3:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 6 --switchId 3')
+                        elif host in hostGroup4:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 3 --switchId 4')
+                        elif host in hostGroup5:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 2 --switchId 0')
 
             elif (TEST_MODE == SWTICHML or TEST_MODE == ATP):
+                print("TEST_MODE == SWTICHML or TEST_MODE == ATP")
                 # 2. SwitchML
-                hostGroup1 = [self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7]]
-                hostGroup2 = [self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15]]
-                hostGroup3 = [self.net.hosts[16], self.net.hosts[17], self.net.hosts[18], self.net.hosts[19], self.net.hosts[20], self.net.hosts[21], self.net.hosts[22], self.net.hosts[23]]
+                if(TOPO_VERSION == DEMOV4):
+                    print("TOPO_VERSION == DEMOV4")
+                    hostGroup1 = [self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7]]
+                    hostGroup2 = [self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15]]
+                    hostGroup3 = [self.net.hosts[16], self.net.hosts[17], self.net.hosts[18], self.net.hosts[19], self.net.hosts[20], self.net.hosts[21], self.net.hosts[22], self.net.hosts[23]]
+                    for host in self.net.hosts:
+                        if host in hostGroup1:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 3')
+                        elif host in hostGroup3:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 4')
+                
+                if(TOPO_VERSION == TOPO07):
+                    print("TOPO_VERSION == TOPO07")
+                    hostGroup1 = [self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2]]
+                    hostGroup2 = [self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5]]
+                    for host in self.net.hosts:
+                        if host in hostGroup1:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.2.4.1 --degree 3 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.2.4.1 --degree 3 --switchId 3')
 
-                popens = {}
-                for host in self.net.hosts:
-                    if host in hostGroup1:
-                        popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 2')
-                    elif host in hostGroup2:
-                        popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 3')
-                    elif host in hostGroup3:
-                        popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 4')
+
 
         elif(SEND_MODE == TCPREPLAY):
             hostGroup = [
@@ -299,18 +316,17 @@ class ExerciseRunner:
                 self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15],
                 self.net.hosts[16], self.net.hosts[17], self.net.hosts[18], self.net.hosts[19], self.net.hosts[20], self.net.hosts[21], self.net.hosts[22], self.net.hosts[23]
             ]
-            popens = {}
             workdir = os.getcwd()
             replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
             for host in hostGroup:
                 cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
                 popens[ host ] = host.popen(cmd)
 
-
+        elif(SEND_MODE == MININET_CLI):
+            pass
+        
         endTime = time() + AGGRE_MONITOR_TIME
         
-        
-
         # 对输出进行检测
         # logDir = os.path.join(workdir, AGGRE_MONITOR_LOG)
         # with open(logDir, 'w') as file:
@@ -328,7 +344,8 @@ class ExerciseRunner:
             if time() >= endTime:
                 for switchProcess in popens.values():
                     switchProcess.send_signal( SIGINT )
-    
+
+        # sleep(30)   # DEBUG: 
         self.do_net_cli()
 
         # stop right after the CLI is exited
