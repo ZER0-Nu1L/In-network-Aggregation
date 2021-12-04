@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys
-import struct
 import os
 import time
 import logging
@@ -19,8 +18,9 @@ workdir = os.getcwd()
 logDir = os.path.join(workdir, RECEIVER_LOG)
 setHandler(logger, logDir)
 
+
 def handle_pkt(pkt):
-    if ((ATP in pkt) or (IP in pkt)) : #  (ICMP not in pkt) and 
+    if (ICMP not in pkt) and ((ATP in pkt) or (IP in pkt)) : #  (ICMP not in pkt) and 
         # print("got a packet:")
         # pkt.show()
         # hexdump(pkt)
@@ -36,12 +36,14 @@ def main():
 
     count = PKTNUM * PS_RECEIVE_FLOW * ALLOW_LOSS_RATE # DEBUG:
     pkt_len = len(Ether()/IP()/ATP()/ATPData()) * 8
+    logger.info('[rec]Expect receiver ' + str(count) + 'pkt')
+
     time_start = time.time()
-    packets = sniff(iface = iface, prn = lambda x: handle_pkt(x), count = count) # , timeout = 120
+    packets = sniff(iface = iface, prn = lambda x: handle_pkt(x), count = count) # 
     time_end = time.time()
     totalTime = time_end - time_start
 
-    logger.info('[rec]Time cost: ' + str(totalTime) + 's')
+    logger.info('[rec]Time cost: ' + str(totalTime) + 's')  
     logger.info("[rec]Receive %d packets" % len(packets))
     logger.info('[rec]Throughout: ' + str(pkt_len*len(packets)/totalTime) + 'bps')
     

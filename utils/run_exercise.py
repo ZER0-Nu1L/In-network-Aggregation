@@ -245,14 +245,14 @@ class ExerciseRunner:
         print('')
 
 
-        PS = self.net.hosts[PS_INDEX]
-        # workdir = os.getcwd()
-        # logDir = os.path.join(workdir, RECEIVER_LOG)
-        # PS.cmd("python3 ./host/receive.py" + " > " + logDir + " &")
-        PS.cmd("python3 ./host/receive.py" + " &")
-        sleep(5) # DEBUG:
         popens = {}
         if(SEND_MODE == GENERATOR_AND_SEND):
+            PS = self.net.hosts[PS_INDEX]
+            # workdir = os.getcwd()
+            # logDir = os.path.join(workdir, RECEIVER_LOG)
+            # PS.cmd("python3 ./host/receive.py" + " > " + logDir + " &")
+            PS.cmd("python3 ./host/receive.py" + " &")
+            sleep(5) # DEBUG:
             print("SEND_MODE == GENERATOR_AND_SEND")
             if(TEST_MODE == NGA):
                 print("TEST_MODE == NGA")
@@ -283,8 +283,11 @@ class ExerciseRunner:
                             popens[ host ] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 2 --switchId 0')
 
             elif (TEST_MODE == SWTICHML or TEST_MODE == ATP):
-                print("TEST_MODE == SWTICHML or TEST_MODE == ATP")
-                # 2. SwitchML
+                if(TEST_MODE == SWTICHML):
+                    print("TEST_MODE == SWTICHML")
+                elif(TEST_MODE == ATP):
+                    print("TEST_MODE == ATP")
+
                 if(TOPO_VERSION == DEMOV4):
                     print("TOPO_VERSION == DEMOV4")
                     hostGroup1 = [self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7]]
@@ -300,17 +303,62 @@ class ExerciseRunner:
                 
                 if(TOPO_VERSION == TOPO07):
                     print("TOPO_VERSION == TOPO07")
-                    hostGroup1 = [self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2]]
-                    hostGroup2 = [self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5]]
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2]]
+                    hostGroup2 = [self.net.hosts[3], self.net.hosts[4], self.net.hosts[5]]
                     for host in self.net.hosts:
                         if host in hostGroup1:
                             popens[ host ] = host.popen('python3 ./host/send.py 10.2.4.1 --degree 3 --switchId 2')
                         elif host in hostGroup2:
                             popens[ host ] = host.popen('python3 ./host/send.py 10.2.4.1 --degree 3 --switchId 3')
 
+                if(TOPO_VERSION == TOPO09):
+                    print("TOPO_VERSION == TOPO09")
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2], self.net.hosts[3]]
+                    hostGroup2 = [self.net.hosts[4], self.net.hosts[5], self.net.hosts[6], self.net.hosts[7]]
+                    for host in self.net.hosts:
+                        if host in hostGroup1:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.2.5.1 --degree 4 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.2.5.1 --degree 4 --switchId 3')
+                
+                if(TOPO_VERSION == TOPO11):
+                    print("TOPO_VERSION == TOPO11")
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2], self.net.hosts[3], self.net.hosts[4]]
+                    hostGroup2 = [self.net.hosts[5], self.net.hosts[6], self.net.hosts[7], self.net.hosts[8], self.net.hosts[9]]
+                    for host in self.net.hosts:
+                        if host in hostGroup1:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.2.6.1 --degree 5 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.2.6.1 --degree 5 --switchId 3')
 
+                if(TOPO_VERSION == TOPO13):
+                    print("TOPO_VERSION == TOPO13")
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2], self.net.hosts[3], self.net.hosts[4], self.net.hosts[5]]
+                    hostGroup2 = [self.net.hosts[6], self.net.hosts[7], self.net.hosts[8], self.net.hosts[9], self.net.hosts[10],self.net.hosts[11]]
+                    for host in self.net.hosts:
+                        if host in hostGroup1:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.2.7.1 --degree 6 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.2.7.1 --degree 6 --switchId 3')
+
+                if(TOPO_VERSION == TOPO15):
+                    print("TOPO_VERSION == TOPO15")
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2], self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6]]
+                    hostGroup2 = [self.net.hosts[7], self.net.hosts[8], self.net.hosts[9], self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13]]
+                    for host in self.net.hosts:
+                        if host in hostGroup1:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.2.8.1 --degree 7 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[ host ] = host.popen('python3 ./host/send.py 10.2.8.1 --degree 7 --switchId 3')
 
         elif(SEND_MODE == TCPREPLAY):
+            PS = self.net.hosts[PS_INDEX]
+            # workdir = os.getcwd()
+            # logDir = os.path.join(workdir, RECEIVER_LOG)
+            # PS.cmd("python3 ./host/receive.py" + " > " + logDir + " &")
+            PS.cmd("python3 ./host/receive.py" + " &")
+            sleep(5) # DEBUG:
+
             hostGroup = [
                 self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7],
                 self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15],

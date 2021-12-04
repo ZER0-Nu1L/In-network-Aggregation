@@ -18,7 +18,6 @@ def get_if():
     for i in get_if_list():
         if "eth0" in i:
             iface=i
-            print(i)
             break;
     if not iface:
         # DEBUG: 这里是为 writepcap.py 服务的，如果不用 writepcap 请注释掉这一行

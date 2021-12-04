@@ -39,8 +39,9 @@ control MyIngress(inout headers hdr,
 
     action count_aggr_egress() {
         egressCounter.count((bit<32>) hdr.atp.sequenceId); // TODO: 没有完全懂 workerMap, sequenceId 0
-        // hdr.atp.aggregationDegree = 3;  // NOTE: 适配ATP路由策略，对于仅仅聚合一次的路由策略没有太大影响
-        // hdr.atp.switchId = 1;       // NOTE: 防止ATP路由策略下，回去的时候又重新聚合。
+        // hdr.atp.aggregationDegree = 3;  // Demov4 NOTE: 适配ATP路由策略，对于仅仅聚合一次的路由策略没有太大影响
+        hdr.atp.aggregationDegree = 2;  // topo_X 
+        hdr.atp.switchId = 1;       // NOTE: 防止ATP路由策略下，回去的时候又重新聚合。
         // DEBUG:  NGS 和 SwitchML 不能用，ATP用，（尤其是 switchID）
     }
     

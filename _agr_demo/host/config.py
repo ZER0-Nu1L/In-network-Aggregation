@@ -16,21 +16,52 @@ DATABYTE = 124 # 31 * 4 即 payload 中 DATANUM 个 4 字节整数
 JOB_NUM = 1024
 
 # Number of packages
-PKTNUM = 1000
+PKTNUM = 2000
 ALLOW_LOSS_RATE = 1
 
 # if(SEND_MODE == TCPREPLAY), configure:
 REPLAY_PCAP_LOG = 'logs/write_pcap.log' 
-REPLAY_PCAP_DIR = 'mypcap/1000/'
+REPLAY_PCAP_DIR = 'mypcap/2000/'
 REPLAY_PCAP_PREFIX_NGA = 'param_NGA-'
 REPLAY_PCAP_PREFIX_SWITCHML = 'param_switchML-'
 REPLAY_PCAP_PREFIX_ATP = 'param_switchML-' # 共用
 
-# receiver set
-NGA_FLOW = 6
-SWITCHML_FLOW = 3
-ATP_FLOW = 1
-PS_RECEIVE_FLOW = NGA_FLOW
+# topo version
+DEMOV4 = 0
+TOPO07 = 1
+TOPO09 = 2
+TOPO11 = 3
+TOPO13 = 4
+TOPO15 = 4
+TOPO_VERSION = TOPO15
+
+if(TOPO_VERSION == DEMOV4):
+    # receiver set
+    NGA_FLOW = 6
+    SWITCHML_FLOW = 3
+    ATP_FLOW = 1
+elif(TOPO_VERSION == TOPO07):
+    NGA_FLOW = 3
+    SWITCHML_FLOW = 2
+    ATP_FLOW = 1
+elif(TOPO_VERSION == TOPO09):
+    NGA_FLOW = 3
+    SWITCHML_FLOW = 2
+    ATP_FLOW = 1
+elif(TOPO_VERSION == TOPO11):
+    NGA_FLOW = 3
+    SWITCHML_FLOW = 2
+    ATP_FLOW = 1
+elif(TOPO_VERSION == TOPO13):
+    NGA_FLOW = 4
+    SWITCHML_FLOW = 2
+    ATP_FLOW = 1
+elif(TOPO_VERSION == TOPO15):
+    NGA_FLOW = 4
+    SWITCHML_FLOW = 2
+    ATP_FLOW = 1
+
+PS_RECEIVE_FLOW = ATP_FLOW
 
 # host monitor
 AGGRE_MONITOR_LOG = 'logs/aggregation.log'
