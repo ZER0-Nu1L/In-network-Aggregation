@@ -165,7 +165,7 @@ if __name__ == '__main__':
         hostGroup_NGA = [
             ['h1', 'h2', 'h4', 'h6', 'h10'],
             ['h3'],
-            ['h5',' h7',' h8',' h9']
+            ['h5', 'h7', 'h8', 'h9']
         ]
         groupPackageConf_NGA = [(2, 5), (1, 1), (4, 4)]
 
@@ -196,7 +196,7 @@ if __name__ == '__main__':
             ['h2', 'h9', 'h12'],
             ['h3', 'h8']
         ]
-        groupPackageConf_NGA = [(2, 6), (3, 1), (1, 3), (2, 4)]
+        groupPackageConf_NGA = [(2, 6), (3, 1), (1, 3), (4, 2)]
 
         worker = WritePcap(PSHost, hostMacMap, hostIPMap, hostGroup_SA, groupPackageConf_SA, hostGroup_NGA, groupPackageConf_NGA)
 
