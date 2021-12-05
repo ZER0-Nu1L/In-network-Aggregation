@@ -19,13 +19,6 @@ JOB_NUM = 1024
 PKTNUM = 2000
 ALLOW_LOSS_RATE = 1
 
-# if(SEND_MODE == TCPREPLAY), configure:
-REPLAY_PCAP_LOG = 'logs/write_pcap.log' 
-REPLAY_PCAP_DIR = 'mypcap/2000/'
-REPLAY_PCAP_PREFIX_NGA = 'param_NGA-'
-REPLAY_PCAP_PREFIX_SWITCHML = 'param_switchML-'
-REPLAY_PCAP_PREFIX_ATP = 'param_switchML-' # 共用
-
 # topo version
 DEMOV4 = 0
 TOPO07 = 1
@@ -61,7 +54,26 @@ elif(TOPO_VERSION == TOPO15):
     SWITCHML_FLOW = 2
     ATP_FLOW = 1
 
-PS_RECEIVE_FLOW = ATP_FLOW
+PS_RECEIVE_FLOW = NGA_FLOW
+
+# if(SEND_MODE == TCPREPLAY), configure:
+REPLAY_PCAP_LOG = 'logs/write_pcap.log' 
+if(TOPO_VERSION == DEMOV4):
+    REPLAY_PCAP_DIR = 'mypcap/demov4/' + str(PKTNUM) + '/'
+elif(TOPO_VERSION == TOPO07):
+    REPLAY_PCAP_DIR = 'mypcap/topo_7/' + str(PKTNUM) + '/'
+elif(TOPO_VERSION == TOPO09):
+    REPLAY_PCAP_DIR = 'mypcap/topo_9/' + str(PKTNUM) + '/'
+elif(TOPO_VERSION == TOPO11):
+    REPLAY_PCAP_DIR = 'mypcap/topo_11/' + str(PKTNUM) + '/'
+elif(TOPO_VERSION == TOPO13):
+    REPLAY_PCAP_DIR = 'mypcap/topo_13/' + str(PKTNUM) + '/'
+elif(TOPO_VERSION == TOPO15):
+    REPLAY_PCAP_DIR = 'mypcap/topo_15/' + str(PKTNUM) + '/'
+
+REPLAY_PCAP_PREFIX_NGA = 'param_NGA-'
+REPLAY_PCAP_PREFIX_SWITCHML = 'param_switchML-'
+REPLAY_PCAP_PREFIX_ATP = 'param_switchML-' # 共用
 
 # host monitor
 AGGRE_MONITOR_LOG = 'logs/aggregation.log'

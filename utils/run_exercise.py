@@ -446,23 +446,109 @@ class ExerciseRunner:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.8.1 --degree 7 --switchId 3')
 
         elif(SEND_MODE == TCPREPLAY):
-            PS = self.net.hosts[PS_INDEX]
-            # workdir = os.getcwd()
-            # logDir = os.path.join(workdir, RECEIVER_LOG)
-            # PS.cmd("python3 ./host/receive.py" + " > " + logDir + " &")
-            PS.cmd("python3 ./host/receive.py" + " &")
-            sleep(5) # DEBUG:
+            if(TOPO_VERSION == DEMOV4):
+                print("TOPO_VERSION == DEMOV4")
+                PS = self.net.hosts[PS_INDEX]
+                PS.cmd("python3 ./host/receive.py" + " &")
+                print("SEND_MODE == TCPREPLAY")
+                sleep(5) # DEBUG:
 
-            hostGroup = [
-                self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7],
-                self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15],
-                self.net.hosts[16], self.net.hosts[17], self.net.hosts[18], self.net.hosts[19], self.net.hosts[20], self.net.hosts[21], self.net.hosts[22], self.net.hosts[23]
-            ]
-            workdir = os.getcwd()
-            replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
-            for host in hostGroup:
-                cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
-                popens[host] = host.popen(cmd)
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7],
+                    self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15],
+                    self.net.hosts[16], self.net.hosts[17], self.net.hosts[18], self.net.hosts[19], self.net.hosts[20], self.net.hosts[21], self.net.hosts[22], self.net.hosts[23]
+                ]
+                workdir = os.getcwd()
+                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
+                for host in hostGroup:
+                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
+                    popens[host] = host.popen(cmd)
+
+            if(TOPO_VERSION == TOPO07):
+                print("TOPO_VERSION == TOPO07")
+                PS = self.net.hosts[PS_INDEX]
+                PS.cmd("python3 ./host/receive.py" + " &")
+                print("SEND_MODE == TCPREPLAY")
+                sleep(5) # DEBUG:
+
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],
+                    self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5]
+                ]
+                workdir = os.getcwd()
+                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
+                for host in hostGroup:
+                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
+                    popens[host] = host.popen(cmd)
+
+            if(TOPO_VERSION == TOPO09):
+                print("TOPO_VERSION == TOPO09")
+                PS = self.net.hosts[PS_INDEX]
+                PS.cmd("python3 ./host/receive.py" + " &")
+                print("SEND_MODE == TCPREPLAY")
+                sleep(5) # DEBUG:
+
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],
+                    self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7]
+                ]
+                workdir = os.getcwd()
+                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
+                for host in hostGroup:
+                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
+                    popens[host] = host.popen(cmd)
+
+            if(TOPO_VERSION == TOPO11):
+                print("TOPO_VERSION == TOPO11")
+                PS = self.net.hosts[PS_INDEX]
+                PS.cmd("python3 ./host/receive.py" + " &")
+                print("SEND_MODE == TCPREPLAY")
+                sleep(5) # DEBUG:
+
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],
+                    self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7],  self.net.hosts[8],  self.net.hosts[9]
+                ]
+                workdir = os.getcwd()
+                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
+                for host in hostGroup:
+                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
+                    popens[host] = host.popen(cmd)
+
+            if(TOPO_VERSION == TOPO13):
+                print("TOPO_VERSION == TOPO13")
+                PS = self.net.hosts[PS_INDEX]
+                PS.cmd("python3 ./host/receive.py" + " &")
+                print("SEND_MODE == TCPREPLAY")
+                sleep(5) # DEBUG:
+
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3], self.net.hosts[4],   self.net.hosts[5],
+                    self.net.hosts[6],  self.net.hosts[7],  self.net.hosts[8],  self.net.hosts[9], self.net.hosts[10],  self.net.hosts[11],
+                ]
+                workdir = os.getcwd()
+                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
+                for host in hostGroup:
+                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
+                    popens[host] = host.popen(cmd)
+
+            if(TOPO_VERSION == TOPO15):
+                print("TOPO_VERSION == TOPO15")
+                PS = self.net.hosts[PS_INDEX]
+                PS.cmd("python3 ./host/receive.py" + " &")
+                print("SEND_MODE == TCPREPLAY")
+                sleep(5) # DEBUG:
+
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],   self.net.hosts[4],   self.net.hosts[5], self.net.hosts[6],  
+                    self.net.hosts[7],  self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10],  self.net.hosts[11],  self.net.hosts[12], self.net.hosts[13]
+                ]
+                workdir = os.getcwd()
+                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
+                for host in hostGroup:
+                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
+                    popens[host] = host.popen(cmd)
+
 
         elif(SEND_MODE == MININET_CLI):
             pass
