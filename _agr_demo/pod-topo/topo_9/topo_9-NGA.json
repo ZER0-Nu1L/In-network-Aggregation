@@ -30,14 +30,14 @@
                             "arp -i eth0 -s 10.2.5.10 08:00:00:02:05:00"]}
        },
        "switches": {
-           "s1": { "runtime_json" : "pod-topo/topo_9/s1-runtime.json" },
-           "s2": { "runtime_json" : "pod-topo/topo_9/s2-runtime.json" },
-           "s3": { "runtime_json" : "pod-topo/topo_9/s3-runtime.json" },
-           "s4": { "runtime_json" : "pod-topo/topo_9/s4-runtime.json" }
+           "s1": { "runtime_json" : "pod-topo/topo_9/s1-runtime-NGA.json" },
+           "s2": { "runtime_json" : "pod-topo/topo_9/s2-runtime-NGA.json" },
+           "s3": { "runtime_json" : "pod-topo/topo_9/s3-runtime-NGA.json" },
+           "s4": { "runtime_json" : "pod-topo/topo_9/s4-runtime-NGA.json" }
        },
        "links": [
            ["s1-p1", "s2-p5"], ["s1-p2", "s3-p5"], ["s4-p1", "s2-p6"], ["s4-p2", "s3-p6"],
-           ["h1", "s2-p1"], ["h2", "s2-p2"], ["h3", "s2-p3"], ["h4", "s2-p5"],
-           ["h5", "s3-p1"], ["h6", "s3-p2"], ["h7", "s3-p3"], ["h8", "s3-p5"], ["h9", "s3-p7"]
+           ["h1", "s2-p1"], ["h2", "s2-p2"], ["h3", "s2-p3"], ["h4", "s2-p4"],
+           ["h5", "s3-p1"], ["h6", "s3-p2"], ["h7", "s3-p3"], ["h8", "s3-p4"], ["h9", "s3-p7"]
        ]
    }

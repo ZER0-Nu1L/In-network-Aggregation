@@ -43,10 +43,10 @@
                                                  
        },
        "switches": {
-           "s1": { "runtime_json" : "pod-topo/topo_13/s1-runtime.json" },
-           "s2": { "runtime_json" : "pod-topo/topo_13/s2-runtime.json" },
-           "s3": { "runtime_json" : "pod-topo/topo_13/s3-runtime.json" },
-           "s4": { "runtime_json" : "pod-topo/topo_13/s4-runtime.json" }
+           "s1": { "runtime_json" : "pod-topo/topo_13/s1-runtime-NGA.json" },
+           "s2": { "runtime_json" : "pod-topo/topo_13/s2-runtime-NGA.json" },
+           "s3": { "runtime_json" : "pod-topo/topo_13/s3-runtime-NGA.json" },
+           "s4": { "runtime_json" : "pod-topo/topo_13/s4-runtime-NGA.json" }
        },
        "links": [
            ["s1-p1", "s2-p7"], ["s1-p2", "s3-p7"], ["s4-p1", "s2-p8"], ["s4-p2", "s3-p8"],
