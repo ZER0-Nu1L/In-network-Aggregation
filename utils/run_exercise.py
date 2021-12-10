@@ -205,39 +205,69 @@ class ExerciseRunner:
         self.program_hosts()
         # self.program_switches() # NOTE: 拆开如下：
 
-        # 生成五个进程（一个主进程，另外四个用于启动控制平面和四个交换机的交互）
-        index = 0
-        while index < 4:
-            pid = os.fork()
-            if pid == 0:
-                break
-            index += 1
-        
-        if (index < 4):
-            # for sw_name, sw_dict in self.switches.items():
-            sw_name = 's' + str(index+1) # TODO: 硬编码
-            sw_dict = self.switches[sw_name]
-            # self.program_switch_p4runtime(sw_name, sw_dict) # NOTE: 拆开如下：
-            sw_obj = self.net.get(sw_name)
-            grpc_port = sw_obj.grpc_port
-            device_id = sw_obj.device_id
-            runtime_json = sw_dict['runtime_json']
-            self.logger('Configuring switch %s using P4Runtime with file %s' % (sw_name, runtime_json))
+        if(TOPO_VERSION <= TOPO15):
+            # 生成五个进程（一个主进程，另外四个用于启动控制平面和四个交换机的交互）
+            index = 0
+            while index < 4:
+                pid = os.fork()
+                if pid == 0:
+                    break
+                index += 1
             
-            with open(runtime_json, 'r') as sw_conf_file:
-                outfile = '%s/%s-p4runtime-requests.txt' %(self.log_dir, sw_name)
-                p4runtime_lib.simple_controller.program_switch(
-                    addr='127.0.0.1:%d' % grpc_port,
-                    device_id=device_id,
-                    sw_conf_file=sw_conf_file,
-                    workdir=os.getcwd(),
-                    proto_dump_fpath=outfile)
-            print(sw_name + " finish its work.")
-            sys.exit(0) # NOTE: 结束子进程
+            if (index < 4):
+                # for sw_name, sw_dict in self.switches.items():
+                sw_name = 's' + str(index+1) # TODO: 硬编码
+                sw_dict = self.switches[sw_name]
+                # self.program_switch_p4runtime(sw_name, sw_dict) # NOTE: 拆开如下：
+                sw_obj = self.net.get(sw_name)
+                grpc_port = sw_obj.grpc_port
+                device_id = sw_obj.device_id
+                runtime_json = sw_dict['runtime_json']
+                self.logger('Configuring switch %s using P4Runtime with file %s' % (sw_name, runtime_json))
                 
+                with open(runtime_json, 'r') as sw_conf_file:
+                    outfile = '%s/%s-p4runtime-requests.txt' %(self.log_dir, sw_name)
+                    p4runtime_lib.simple_controller.program_switch(
+                        addr='127.0.0.1:%d' % grpc_port,
+                        device_id=device_id,
+                        sw_conf_file=sw_conf_file,
+                        workdir=os.getcwd(),
+                        proto_dump_fpath=outfile)
+                print(sw_name + " finish its work.")
+                sys.exit(0) # NOTE: 结束子进程
+        else:
+            # 生成七个进程（一个主进程，另外六个用于启动控制平面和六个交换机的交互）
+            index = 0
+            while index < 6:
+                pid = os.fork()
+                if pid == 0:
+                    break
+                index += 1
+            
+            if (index < 6):
+                # for sw_name, sw_dict in self.switches.items():
+                sw_name = 's' + str(index+1) # TODO: 硬编码
+                sw_dict = self.switches[sw_name]
+                # self.program_switch_p4runtime(sw_name, sw_dict) # NOTE: 拆开如下：
+                sw_obj = self.net.get(sw_name)
+                grpc_port = sw_obj.grpc_port
+                device_id = sw_obj.device_id
+                runtime_json = sw_dict['runtime_json']
+                self.logger('Configuring switch %s using P4Runtime with file %s' % (sw_name, runtime_json))
+                
+                with open(runtime_json, 'r') as sw_conf_file:
+                    outfile = '%s/%s-p4runtime-requests.txt' %(self.log_dir, sw_name)
+                    p4runtime_lib.simple_controller.program_switch(
+                        addr='127.0.0.1:%d' % grpc_port,
+                        device_id=device_id,
+                        sw_conf_file=sw_conf_file,
+                        workdir=os.getcwd(),
+                        proto_dump_fpath=outfile)
+                print(sw_name + " finish its work.")
+                sys.exit(0) # NOTE: 结束子进程
 
         ## Test aggregation
-        sleep(10) # 等待连接都完成
+        sleep(15) # 等待连接都完成
         print('')
         print('======================================================================')
         print('Start test In-network aggregation')
@@ -282,7 +312,7 @@ class ExerciseRunner:
                         elif host in hostGroup5:
                             popens[host] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 2 --switchId 0')
 
-                if(TOPO_VERSION == TOPO07):
+                elif(TOPO_VERSION == TOPO07):
                     print("TOPO_VERSION == TOPO07")
                     # h3, h5, h6
                     hostGroup1 = [self.net.hosts[2], self.net.hosts[4], self.net.hosts[5]]
@@ -299,7 +329,7 @@ class ExerciseRunner:
                         elif host in hostGroup3:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.4.1 --degree 2 --switchId 4')
 
-                if(TOPO_VERSION == TOPO09):
+                elif(TOPO_VERSION == TOPO09):
                     print("TOPO_VERSION == TOPO09")
                     # h3, h4, h5, h7
                     hostGroup1 = [self.net.hosts[2], self.net.hosts[3], self.net.hosts[4], self.net.hosts[6]]
@@ -316,7 +346,7 @@ class ExerciseRunner:
                         elif host in hostGroup3:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.5.1 --degree 3 --switchId 4')
 
-                if(TOPO_VERSION == TOPO11):
+                elif(TOPO_VERSION == TOPO11):
                     print("TOPO_VERSION == TOPO11")
                     # h1, h2, h4, h6, h10
                     hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[3], self.net.hosts[5], self.net.hosts[9]]
@@ -334,7 +364,7 @@ class ExerciseRunner:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.6.1 --degree 4 --switchId 4')
 
                 # TODO: 这个写的Group顺序有点乱
-                if(TOPO_VERSION == TOPO13):
+                elif(TOPO_VERSION == TOPO13):
                     print("TOPO_VERSION == TOPO13")
                     # h1, h4, h5, h6, h7, h10
                     hostGroup1 = [self.net.hosts[0], self.net.hosts[3], self.net.hosts[4], self.net.hosts[5], self.net.hosts[6], self.net.hosts[9]]
@@ -355,7 +385,7 @@ class ExerciseRunner:
                         elif host in hostGroup4:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.7.1 --degree 2 --switchId 4')
 
-                if(TOPO_VERSION == TOPO15):
+                elif(TOPO_VERSION == TOPO15):
                     print("TOPO_VERSION == TOPO15")
                     # h1
                     hostGroup1 = [self.net.hosts[0]]
@@ -376,6 +406,118 @@ class ExerciseRunner:
                         elif host in hostGroup4:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.8.1 --degree 7 --switchId 4')
 
+                elif(TOPO_VERSION == TOPO0307):
+                    print("TOPO_VERSION == TOPO0307")
+                    # h1, h2
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[1]]
+                    # h3, h4
+                    hostGroup2 = [self.net.hosts[2], self.net.hosts[3]]
+                    # h5, h6
+                    hostGroup3 = [self.net.hosts[4], self.net.hosts[5]]
+                    for host in self.net.hosts:
+                        if host in hostGroup1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.3.1 --degree 2 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.3.1 --degree 2 --switchId 3')
+                        elif host in hostGroup3:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.3.1 --degree 2 --switchId 4')
+
+                elif(TOPO_VERSION == TOPO0310):
+                    print("TOPO_VERSION == TOPO0310")
+                    # h1, h2, h3
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2]]
+                    # h4, h5, h6
+                    hostGroup2 = [self.net.hosts[3], self.net.hosts[4], self.net.hosts[5]]
+                    # h7, h8, h9
+                    hostGroup3 = [self.net.hosts[6], self.net.hosts[7], self.net.hosts[8]]
+                    for host in self.net.hosts:
+                        if  host  in hostGroup1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.4.1 --degree 3 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.4.1 --degree 3 --switchId 3')
+                        elif host in hostGroup3:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.4.1 --degree 3 --switchId 4')
+
+                elif(TOPO_VERSION == TOPO0313):
+                    print("TOPO_VERSION == TOPO0313")
+                    # h1, h2
+                    hostGroup1_1 = [self.net.hosts[0], self.net.hosts[1]]
+                    # h3, h4
+                    hostGroup1_2 = [self.net.hosts[2], self.net.hosts[3]]
+                    # h5, h6
+                    hostGroup2_1 = [self.net.hosts[4], self.net.hosts[5]]
+                    # h7, h8
+                    hostGroup2_2 = [self.net.hosts[6], self.net.hosts[7]]
+                    # h9, h10, h11, h12
+                    hostGroup3 = [self.net.hosts[8], self.net.hosts[9], self.net.hosts[10], self.net.hosts[11]]
+                    for host in self.net.hosts:
+                        if  host  in hostGroup1_1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.5.1 --degree 2 --switchId 2')
+                        if  host  in hostGroup1_2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.5.1 --degree 2 --switchId 1')
+                        elif host in hostGroup2_1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.5.1 --degree 2 --switchId 3')
+                        elif host in hostGroup2_2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.5.1 --degree 2 --switchId 5')
+                        elif host in hostGroup3:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.5.1 --degree 4 --switchId 4')
+
+                elif(TOPO_VERSION == TOPO0316):
+                    print("TOPO_VERSION == TOPO0316")
+                    # h1, h2, h3
+                    hostGroup1_1 = [self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2]]
+                    # h4, h5
+                    hostGroup1_2 = [self.net.hosts[3],  self.net.hosts[4] ]
+                    # h6, h7, h8
+                    hostGroup2_1 = [self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7]]
+                    # h9, h10
+                    hostGroup2_2 = [self.net.hosts[8],  self.net.hosts[9] ]
+                    # h11, h12
+                    hostGroup3_1 = [self.net.hosts[10], self.net.hosts[11]]
+                    # h13, h14, h15
+                    hostGroup3_2 = [self.net.hosts[12], self.net.hosts[13], self.net.hosts[14]]
+                    for host in self.net.hosts:
+                        if  host  in hostGroup1_1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.6.1 --degree 3 --switchId 2')
+                        elif host in hostGroup1_2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.6.1 --degree 2 --switchId 1')
+                        if  host  in hostGroup2_1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.6.1 --degree 3 --switchId 3')
+                        elif host in hostGroup2_2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.6.1 --degree 2 --switchId 5')
+                        elif host in hostGroup3_1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.6.1 --degree 2 --switchId 4')
+                        elif host in hostGroup3_2: # NOTE: FIXME:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.6.1 --degree 3 --switchId 0')
+
+                elif(TOPO_VERSION == TOPO0319):
+                    print("TOPO_VERSION == TOPO0319")
+                    # h1, h2, h3
+                    hostGroup1_1 = [self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2]]
+                    # h4, h5, h6
+                    hostGroup1_2 = [self.net.hosts[3],  self.net.hosts[4] , self.net.hosts[5]]
+                    # h7, h8, h9
+                    hostGroup2_1 = [self.net.hosts[6],  self.net.hosts[7],  self.net.hosts[8]]
+                    # h10, h11, h12
+                    hostGroup2_2 = [self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11]]
+                    # h13, h14, h15, h16, h17
+                    hostGroup3_1 = [self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15], self.net.hosts[16]]
+                    # h18
+                    hostGroup3_2 = [self.net.hosts[17]]
+                    for host in self.net.hosts:
+                        if  host  in hostGroup1_1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.7.1 --degree 3 --switchId 2')
+                        elif  host  in hostGroup1_2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.7.1 --degree 3 --switchId 1')
+                        elif host in hostGroup2_1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.7.1 --degree 3 --switchId 3')
+                        elif host in hostGroup2_2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.7.1 --degree 3 --switchId 5')
+                        elif host in hostGroup3_1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.7.1 --degree 5 --switchId 4')
+                        elif host in hostGroup3_2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.7.1 --degree 1 --switchId 0')
+
             elif (TEST_MODE == SWTICHML or TEST_MODE == ATP):
                 if(TEST_MODE == SWTICHML):
                     print("TEST_MODE == SWTICHML")
@@ -395,7 +537,7 @@ class ExerciseRunner:
                         elif host in hostGroup3:
                             popens[host] = host.popen('python3 ./host/send.py 10.3.9.1 --degree 8 --switchId 4')
                 
-                if(TOPO_VERSION == TOPO07):
+                elif(TOPO_VERSION == TOPO07):
                     print("TOPO_VERSION == TOPO07")
                     hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2]]
                     hostGroup2 = [self.net.hosts[3], self.net.hosts[4], self.net.hosts[5]]
@@ -405,7 +547,7 @@ class ExerciseRunner:
                         elif host in hostGroup2:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.4.1 --degree 3 --switchId 3')
 
-                if(TOPO_VERSION == TOPO09):
+                elif(TOPO_VERSION == TOPO09):
                     print("TOPO_VERSION == TOPO09")
                     hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2], self.net.hosts[3]]
                     hostGroup2 = [self.net.hosts[4], self.net.hosts[5], self.net.hosts[6], self.net.hosts[7]]
@@ -415,7 +557,7 @@ class ExerciseRunner:
                         elif host in hostGroup2:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.5.1 --degree 4 --switchId 3')
                 
-                if(TOPO_VERSION == TOPO11):
+                elif(TOPO_VERSION == TOPO11):
                     print("TOPO_VERSION == TOPO11")
                     hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2], self.net.hosts[3], self.net.hosts[4]]
                     hostGroup2 = [self.net.hosts[5], self.net.hosts[6], self.net.hosts[7], self.net.hosts[8], self.net.hosts[9]]
@@ -425,7 +567,7 @@ class ExerciseRunner:
                         elif host in hostGroup2:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.6.1 --degree 5 --switchId 3')
 
-                if(TOPO_VERSION == TOPO13):
+                elif(TOPO_VERSION == TOPO13):
                     print("TOPO_VERSION == TOPO13")
                     hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2], self.net.hosts[3], self.net.hosts[4], self.net.hosts[5]]
                     hostGroup2 = [self.net.hosts[6], self.net.hosts[7], self.net.hosts[8], self.net.hosts[9], self.net.hosts[10],self.net.hosts[11]]
@@ -435,7 +577,7 @@ class ExerciseRunner:
                         elif host in hostGroup2:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.7.1 --degree 6 --switchId 3')
 
-                if(TOPO_VERSION == TOPO15):
+                elif(TOPO_VERSION == TOPO15):
                     print("TOPO_VERSION == TOPO15")
                     hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2], self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6]]
                     hostGroup2 = [self.net.hosts[7], self.net.hosts[8], self.net.hosts[9], self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13]]
@@ -445,113 +587,155 @@ class ExerciseRunner:
                         elif host in hostGroup2:
                             popens[host] = host.popen('python3 ./host/send.py 10.2.8.1 --degree 7 --switchId 3')
 
+                elif(TOPO_VERSION == TOPO0307):
+                    print("TOPO_VERSION == TOPO0307")
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[1]]
+                    hostGroup2 = [self.net.hosts[2], self.net.hosts[3]]
+                    hostGroup3 = [self.net.hosts[4], self.net.hosts[5]]
+                    for host in self.net.hosts:
+                        if host in hostGroup1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.3.1 --degree 2 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.3.1 --degree 2 --switchId 3')
+                        elif host in hostGroup3:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.3.1 --degree 2 --switchId 4')
+
+                elif(TOPO_VERSION == TOPO0310):
+                    print("TOPO_VERSION == TOPO0310")
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2]]
+                    hostGroup2 = [self.net.hosts[3], self.net.hosts[4], self.net.hosts[5]]
+                    hostGroup3 = [self.net.hosts[6], self.net.hosts[7], self.net.hosts[8]]
+                    for host in self.net.hosts:
+                        if  host  in hostGroup1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.4.1 --degree 3 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.4.1 --degree 3 --switchId 3')
+                        elif host in hostGroup3:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.4.1 --degree 3 --switchId 4')
+
+                elif(TOPO_VERSION == TOPO0313):
+                    print("TOPO_VERSION == TOPO0313")
+                    hostGroup1 = [self.net.hosts[0], self.net.hosts[1], self.net.hosts[2],  self.net.hosts[3] ]
+                    hostGroup2 = [self.net.hosts[4], self.net.hosts[5], self.net.hosts[6],  self.net.hosts[7] ]
+                    hostGroup3 = [self.net.hosts[8], self.net.hosts[9], self.net.hosts[10], self.net.hosts[11]]
+                    for host in self.net.hosts:
+                        if  host  in hostGroup1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.5.1 --degree 4 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.5.1 --degree 4 --switchId 3')
+                        elif host in hostGroup3:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.5.1 --degree 4 --switchId 4')
+
+                elif(TOPO_VERSION == TOPO0316):
+                    print("TOPO_VERSION == TOPO0316")
+                    hostGroup1 = [self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4] ]
+                    hostGroup2 = [self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7],  self.net.hosts[8],  self.net.hosts[9] ]
+                    hostGroup3 = [self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14]]
+                    for host in self.net.hosts:
+                        if  host  in hostGroup1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.6.1 --degree 5 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.6.1 --degree 5 --switchId 3')
+                        elif host in hostGroup3:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.6.1 --degree 5 --switchId 4')
+
+                elif(TOPO_VERSION == TOPO0319):
+                    print("TOPO_VERSION == TOPO0319")
+                    hostGroup1 = [self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4] , self.net.hosts[5] ]
+                    hostGroup2 = [self.net.hosts[6],  self.net.hosts[7],  self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11]]
+                    hostGroup3 = [self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15], self.net.hosts[16], self.net.hosts[17]]
+                    for host in self.net.hosts:
+                        if  host  in hostGroup1:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.7.1 --degree 6 --switchId 2')
+                        elif host in hostGroup2:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.7.1 --degree 6 --switchId 3')
+                        elif host in hostGroup3:
+                            popens[host] = host.popen('python3 ./host/send.py 10.3.7.1 --degree 6 --switchId 4')
+
         elif(SEND_MODE == TCPREPLAY):
+            PS = self.net.hosts[PS_INDEX]
+            PS.cmd("python3 ./host/receive.py" + " &")
+            print("SEND_MODE == TCPREPLAY")
+            sleep(5) # DEBUG:
             if(TOPO_VERSION == DEMOV4):
                 print("TOPO_VERSION == DEMOV4")
-                PS = self.net.hosts[PS_INDEX]
-                PS.cmd("python3 ./host/receive.py" + " &")
-                print("SEND_MODE == TCPREPLAY")
-                sleep(5) # DEBUG:
-
                 hostGroup = [
                     self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7],
                     self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15],
                     self.net.hosts[16], self.net.hosts[17], self.net.hosts[18], self.net.hosts[19], self.net.hosts[20], self.net.hosts[21], self.net.hosts[22], self.net.hosts[23]
                 ]
-                workdir = os.getcwd()
-                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
-                for host in hostGroup:
-                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
-                    popens[host] = host.popen(cmd)
-
             if(TOPO_VERSION == TOPO07):
                 print("TOPO_VERSION == TOPO07")
-                PS = self.net.hosts[PS_INDEX]
-                PS.cmd("python3 ./host/receive.py" + " &")
-                print("SEND_MODE == TCPREPLAY")
-                sleep(5) # DEBUG:
-
                 hostGroup = [
                     self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],
                     self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5]
                 ]
-                workdir = os.getcwd()
-                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
-                for host in hostGroup:
-                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
-                    popens[host] = host.popen(cmd)
-
-            if(TOPO_VERSION == TOPO09):
+            elif(TOPO_VERSION == TOPO09):
                 print("TOPO_VERSION == TOPO09")
-                PS = self.net.hosts[PS_INDEX]
-                PS.cmd("python3 ./host/receive.py" + " &")
-                print("SEND_MODE == TCPREPLAY")
-                sleep(5) # DEBUG:
-
                 hostGroup = [
                     self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],
                     self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7]
                 ]
-                workdir = os.getcwd()
-                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
-                for host in hostGroup:
-                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
-                    popens[host] = host.popen(cmd)
-
-            if(TOPO_VERSION == TOPO11):
+            elif(TOPO_VERSION == TOPO11):
                 print("TOPO_VERSION == TOPO11")
-                PS = self.net.hosts[PS_INDEX]
-                PS.cmd("python3 ./host/receive.py" + " &")
-                print("SEND_MODE == TCPREPLAY")
-                sleep(5) # DEBUG:
-
                 hostGroup = [
                     self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],
                     self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7],  self.net.hosts[8],  self.net.hosts[9]
                 ]
-                workdir = os.getcwd()
-                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
-                for host in hostGroup:
-                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
-                    popens[host] = host.popen(cmd)
-
-            if(TOPO_VERSION == TOPO13):
+            elif(TOPO_VERSION == TOPO13):
                 print("TOPO_VERSION == TOPO13")
-                PS = self.net.hosts[PS_INDEX]
-                PS.cmd("python3 ./host/receive.py" + " &")
-                print("SEND_MODE == TCPREPLAY")
-                sleep(5) # DEBUG:
-
                 hostGroup = [
                     self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3], self.net.hosts[4],   self.net.hosts[5],
                     self.net.hosts[6],  self.net.hosts[7],  self.net.hosts[8],  self.net.hosts[9], self.net.hosts[10],  self.net.hosts[11],
                 ]
-                workdir = os.getcwd()
-                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
-                for host in hostGroup:
-                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
-                    popens[host] = host.popen(cmd)
-
-            if(TOPO_VERSION == TOPO15):
+            elif(TOPO_VERSION == TOPO15):
                 print("TOPO_VERSION == TOPO15")
-                PS = self.net.hosts[PS_INDEX]
-                PS.cmd("python3 ./host/receive.py" + " &")
-                print("SEND_MODE == TCPREPLAY")
-                sleep(5) # DEBUG:
-
                 hostGroup = [
                     self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],   self.net.hosts[4],   self.net.hosts[5], self.net.hosts[6],  
                     self.net.hosts[7],  self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10],  self.net.hosts[11],  self.net.hosts[12], self.net.hosts[13]
                 ]
-                workdir = os.getcwd()
-                replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
-                for host in hostGroup:
-                    cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
-                    popens[host] = host.popen(cmd)
+            elif(TOPO_VERSION == TOPO0307):
+                print("TOPO_VERSION == TOPO0307")
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],
+                    self.net.hosts[2],  self.net.hosts[3],
+                    self.net.hosts[4],  self.net.hosts[5]
+                ]
+            elif(TOPO_VERSION == TOPO0310):
+                print("TOPO_VERSION == TOPO0310")
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],
+                    self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],
+                    self.net.hosts[6],  self.net.hosts[7],  self.net.hosts[8]
+                ]
+            elif(TOPO_VERSION == TOPO0313):
+                print("TOPO_VERSION == TOPO0313")
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],
+                    self.net.hosts[4],  self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7],
+                    self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11]
+                ]
+            elif(TOPO_VERSION == TOPO0316):
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],
+                    self.net.hosts[5],  self.net.hosts[6],  self.net.hosts[7],  self.net.hosts[8],  self.net.hosts[9],
+                    self.net.hosts[10], self.net.hosts[11], self.net.hosts[12], self.net.hosts[13], self.net.hosts[14]
+                ]
+            elif(TOPO_VERSION == TOPO0319):
+                hostGroup = [
+                    self.net.hosts[0],  self.net.hosts[1],  self.net.hosts[2],  self.net.hosts[3],  self.net.hosts[4],  self.net.hosts[5],
+                    self.net.hosts[6],  self.net.hosts[7],  self.net.hosts[8],  self.net.hosts[9],  self.net.hosts[10], self.net.hosts[11],
+                    self.net.hosts[12], self.net.hosts[13], self.net.hosts[14], self.net.hosts[15], self.net.hosts[16], self.net.hosts[17]
+                ]
 
+            workdir = os.getcwd()
+            replayPcapDir = os.path.join(workdir, REPLAY_PCAP_DIR)
+            for host in hostGroup:
+                cmd = 'tcpreplay -i eth0 -M' + ' ' + str(REPLAY_SPEED) + ' ' + (replayPcapDir+REPLAY_PCAP_PREFIX+host.name+'.pcap')
+                popens[host] = host.popen(cmd)
 
         elif(SEND_MODE == MININET_CLI):
-            pass
+            self.do_net_cli()
         
         endTime = time() + AGGRE_MONITOR_TIME
         
@@ -573,8 +757,8 @@ class ExerciseRunner:
                 for switchProcess in popens.values():
                     switchProcess.send_signal( SIGINT )
 
-        # sleep(30)   # DEBUG: 
-        self.do_net_cli()
+        sleep(20)   # DEBUG: 
+        # self.do_net_cli()
 
         # stop right after the CLI is exited
         self.net.stop()

@@ -105,7 +105,7 @@ def printCounter(p4info_helper, sw, counter_name, index):
     for response in sw.ReadCounters(p4info_helper.get_counters_id(counter_name), index):
         for entity in response.entities:
             counter = entity.counter_entry
-            str += "%s %s %d: %d packets\n" % (
+            str += "%s %-24s %d: %6d packets\n" % (
                 sw.name, counter_name, index,
                 counter.data.packet_count
             )
@@ -173,7 +173,7 @@ def program_switch(addr, device_id, sw_conf_file, workdir, proto_dump_fpath):
         endTime = time.time() + READ_TIME  # DEBUG:
         while time.time() <= endTime:
             with open(logDir, 'a') as file:
-                file.write('\n--------- Reading tunnel counters ---------\n')
+                file.write('\n---------- Reading tunnel counters ----------\n')
                 file.write(printCounter(p4info_helper, sw, "MyIngress.ingressCounter", 0))  # TODO: 不知道这个 index 是干嘛的
                 file.write(printCounter(p4info_helper, sw, "MyIngress.egressCounter", 0))
             time.sleep(READTABLE_TIME)  # DEBUG:
